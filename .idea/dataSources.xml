@@ -7,5 +7,11 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5432/daytomoney</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="site" uuid="7e8824b9-17cf-45a9-b76a-700fe6949bcf">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:D:\Programming\Projects\DayToMoney\site.db</jdbc-url>
+    </data-source>
   </component>
 </project>

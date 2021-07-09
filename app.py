@@ -1,9 +1,37 @@
 from flask import Flask, render_template, url_for, flash, redirect
+from flask_sqlalchemy import SQLAlchemy
 from forms import RegistrationForm, LoginForm
 
-app = Flask(__name__)
+from datetime import datetime
 
+app = Flask(__name__)
 app.config['SECRET_KEY'] = '2d00df46ce74700f039ebf42idjfhijdjjc861b955121e75a765d1262b0db534994e51c76'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
+    password = db.Column(db.String(60), nullable=False)
+
+    day_spendings = db.relationship('Day_spending', backref='User_that_spent',lazy=True)
+
+    def __repr__(self):
+        return f"User('{self.username}','{self.email}' '{self.image_file}')"
+
+class Day_spending(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(100), nullable=False)
+    date_spent = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    quantity = db.Column(db.Integer, nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"User('{self.type}','{self.date_spent}' '{self.quantity}')"
+
 
 day_spendings = [
     {
@@ -19,6 +47,8 @@ day_spendings = [
         'quantity_type': 'item'
     }
 ]
+
+
 
 
 @app.route('/')
