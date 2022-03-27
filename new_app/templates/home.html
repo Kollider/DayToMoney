@@ -1,0 +1,14 @@
+{% extends "layout.html" %} {% block content %}
+    {% for  day in day_spendings%}
+        <h1>{{ day.day }}</h1>
+        <p>{{ day.name_of_item }}</p>
+        <p>{{ day.quantity }}</p>
+        <p>{{ day.quantity_type }}</p>
+        <p>{{ day.spending_amount }}</p>
+
+
+
+    {% endfor %}
+
+
+{% endblock content%}
