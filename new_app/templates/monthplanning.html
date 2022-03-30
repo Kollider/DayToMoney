@@ -1,0 +1,20 @@
+{% extends "layout.html" %} {% block content %}
+
+    {% for  test in month_plans.items%}
+       <!-- <h2><a class="article-title" href="{{ url_for('month_plan_table_test', month_plan_id=test.id) }}">{{ test.month.year }} {{ myfunction(test.month.month) }}</a></h2>
+        <p>{{ test.income }}</p>
+        <p>{{ test.money_for_month }}</p>
+        <p>{{ test.money_for_day }}</p>
+        {% for type in test.list_of_planned_spending %}
+            <p>{{ type.name_of_type }}</p>
+        {% endfor %}-->
+           <article class="media content-section"> <div class="media-body">
+            <h2><a class="article-title" href="{{ url_for('month_plan_table_test', month_plan_id=test.id) }}">{{ test.month.year }} {{ myfunction(test.month.month) }}</a></h2>
+
+            </div><p class="article-content">{{ test.income }}</p></article>
+    {% endfor %}
+
+
+{% for page_num in month_plans.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %} {% if page_num %} {% if month_plans.page == page_num %}
+<a class="btn btn-info mb-4" href="{{ url_for('show_all_months', page=page_num) }}">{{ page_num }}</a> {% else %}
+<a class="btn btn-outline-info mb-4" href="{{ url_for('show_all_months', page=page_num) }}">{{ page_num }}</a> {% endif %} {% else %} ... {% endif %} {% endfor %} {% endblock content %}
