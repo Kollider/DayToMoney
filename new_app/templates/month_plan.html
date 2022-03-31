@@ -71,26 +71,33 @@
 
             </tbody>
         </table>
+
+    <button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#newtypeModal">New Type</button>
+
 <p></p>
-        <p class="article-content" style="font-size: 1.4rem;">Products that {{ 'PYTHON' }} sold</p>
-        <table class="table">
-            <thead>
-                <tr class="table-info">
-                    <th scope="col">Name</th>
-                    <th scope="col">Sell Price</th>
-                </tr>
-            </thead>
-            <tbody>{% for st in [1,2,3,4] %}
-                <tr>
-                    <td>{{ st }}</td>
-                    <td>{{ st }} UAH</td>
-                </tr>{% endfor %}
-            </tbody>
-        </table>
+
 
 </div>
 </article>
 <!--Modal-->
+<div class="modal fade" id="newtypeModal" tabindex="-1" role="dialog" aria-labelledby="newtypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newtypeModalLabel">Create new type?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('month_type_new', month_plan_id=month_plan.id) }}" method="POST">
+                    <input class="btn btn-danger" type="submit" value="Create">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock content %}
