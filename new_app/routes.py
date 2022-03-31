@@ -1,8 +1,10 @@
+from calendar import monthrange
 from datetime import datetime
 
 from flask import render_template, request, flash, url_for, redirect
 
 from new_app.forms import SpendingForm, MonthPlanForm, MonthTypeForm
+from new_app.helper.month_plan_table import plan_to_dict, daily_overall_dict
 from new_app.helper.name_months import months_names
 from new_app.main import website, db
 from new_app.models import Spendings, Month_plans, Types_of_month_spend
@@ -74,5 +76,7 @@ def month_type_new():
 @website.route('/planning/monthly/<int:month_plan_id>',methods=['GET', 'POST'])
 def month_plan_table_test(month_plan_id):
 	month_plan = Month_plans.query.get_or_404(month_plan_id)
-	return render_template('month_plan.html', title=str(month_plan.month.month)+'.'+str(month_plan.month.year),month_plan=month_plan, legend='TEST LEGEND FOR MONTH PLAN')
+	days=monthrange(month_plan.month.year, month_plan.month.month)[1]
+
+	return render_template('month_plan.html', title=str(month_plan.month.month)+'.'+str(month_plan.month.year), month_plan=month_plan, legend='TEST LEGEND FOR MONTH PLAN', planDictionary=plan_to_dict(month_plan), days=days, monthOverall=daily_overall_dict(plan_to_dict(month_plan)))
 

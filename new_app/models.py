@@ -27,7 +27,7 @@ class Spendings(db.Model):
 
 class Month_plans(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	month = db.Column(db.Date, nullable=true, default=datetime.date.today)
+	month = db.Column(db.Date, nullable=true)
 	income = db.Column(db.Float, nullable=True, default=0)
 	money_for_month = db.Column(db.Float, nullable=True, default=0)
 	money_for_day = db.Column(db.Float, nullable=True, default=0)

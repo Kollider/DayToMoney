@@ -1,10 +1,10 @@
 {% extends "layout.html" %} {% block content %}
     <a class="nav-item nav-link" href="{{ url_for('show_all_months') }}">Back to all plans</a>
-<article class="media content-section">
+<!-- <article class="media content-section">
     <div class="media-body">
-       <!--  <div class="article-metadata">
+        <div class="article-metadata">
            <small class="text-muted">{{ month_plan.month.strftime('%Y-%m-%d') }}</small>
-        </div>-->
+        </div>
         <h2 class="article-title">{{ month_plan.income }}</h2>
         <p class="article-content">{{ month_plan.money_for_day }}</p>
     </div>
@@ -12,6 +12,85 @@
             <a>{{ type.name_of_type }}</a>
         {% endfor %}
 
+</article>-->
+<article class="media content-section">
+<div class="media-body">
+    <p class="article-content" style="font-size: 2rem;float: right;">Income: {{ month_plan.income }}</p>
+    <p class="article-content" style="font-size: 2rem;float: left;">Days: {{ days }}</p>
+
+
+    <table class="table">
+            <thead>
+                <tr class="table-info">
+                    <th scope="col">Name</th>
+                    <th scope="col">Percent</th>
+                    <th scope="col">Daily</th>
+                    <th scope="col">Amount</th>
+
+                </tr>
+            </thead>
+            <tbody>{% for type in planDictionary %}
+                <tr>
+                    <td>{{ planDictionary[type]['name'] }}</td>
+                    <td style="">{{ planDictionary[type]['amount_in_percent'] }} %</td>
+                    <td>{% if planDictionary[type]['daily'] %}{{ planDictionary[type]['daily'] }} UAH{% else %}{% endif %}</td>
+                    <td>{{ planDictionary[type]['amount_in_money'] }} UAH</td>
+
+                </tr>{% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Overall Day</td>
+                <td>{{ monthOverall['overall_day_percent'] }} %</td>
+                <td>{{ monthOverall['overall_day_daily'] }} UAH</td>
+                <td>{{ monthOverall['overall_day_amount'] }} UAH</td>
+            </tr>
+            <tr>
+                <td>Overall Month</td>
+                <td>{{ monthOverall['overall_month_percent'] }} %</td>
+                <td> </td>
+                <td>{{ monthOverall['overall_month_amount'] }} UAH</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Left</td>
+                <td>{{ monthOverall['left_percent'] }} %</td>
+                <td></td>
+                <td>{% if monthOverall['left_amount']!=0 %}{{ monthOverall['left_amount'] }}{% else %}{{ month_plan.income }}{% endif %}</td>
+            </tr>
+
+
+            </tbody>
+        </table>
+<p></p>
+        <p class="article-content" style="font-size: 1.4rem;">Products that {{ 'PYTHON' }} sold</p>
+        <table class="table">
+            <thead>
+                <tr class="table-info">
+                    <th scope="col">Name</th>
+                    <th scope="col">Sell Price</th>
+                </tr>
+            </thead>
+            <tbody>{% for st in [1,2,3,4] %}
+                <tr>
+                    <td>{{ st }}</td>
+                    <td>{{ st }} UAH</td>
+                </tr>{% endfor %}
+            </tbody>
+        </table>
+
+</div>
 </article>
+<!--Modal-->
+
 
 {% endblock content %}
