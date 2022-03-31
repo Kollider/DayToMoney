@@ -13,29 +13,21 @@
                 {% else %} {{ form.name_of_type(class="form-control form-control-lg") }} {% endif %}
             </div>
             <div class="form-group">
-                {{ form.amount_in_percent.label(class="form-control-label") }} {% if form.amount_in_percent.errors %} {{ form.amount_in_percent(class="form-control form-control-lg is-invalid") }}
+                {{ form.amount_choice.label(class="form-control-label") }} {% if form.amount_choice.errors %} {{ form.amount_choice(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.amount_in_percent.errors %}
+                    {% for error in form.amount_choice.errors %}
                     <span>{{ error }}</span> {% endfor %}
                 </div>
-                {% else %} {{ form.amount_in_percent(class="form-control form-control-lg") }} {% endif %}
+                {% else %} {{ form.amount_choice(class="form-control form-control-lg") }} {% endif %}
             </div>
             <div class="form-group">
-                {{ form.amount_in_money.label(class="form-control-label") }} {% if form.amount_in_money.errors %} {{ form.amount_in_money(class="form-control form-control-lg is-invalid") }}
+                {{ form.amount.label(class="form-control-label") }} {% if form.amount.errors %} {{ form.amount(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
-                    {% for error in form.amount_in_money.errors %}
+                    {% for error in form.amount.errors %}
                     <span>{{ error }}</span> {% endfor %}
                 </div>
-                {% else %} {{ form.amount_in_money(class="form-control form-control-lg") }} {% endif %}
+                {% else %} {{ form.amount(class="form-control form-control-lg") }} {% endif %}
             </div>
-            <!--<div class="form-group">
-                {{ form.is_default.label(class="form-control-label") }} {% if form.is_default.errors %} {{ form.is_default(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                    {% for error in form.is_default.errors %}
-                    <span>{{ error }}</span> {% endfor %}
-                </div>
-                {% else %} {{ form.is_default(class="form-control form-control-lg") }} {% endif %}
-            </div>-->
             <div class="form-group">
                 {{ form.is_everyday.label(class="form-control-label") }} {% if form.is_everyday.errors %} {{ form.is_everyday(class="form-control form-control-lg is-invalid") }}
                 <div class="invalid-feedback">
@@ -44,16 +36,6 @@
                 </div>
                 {% else %} {{ form.is_everyday(class="form-control form-control-lg") }} {% endif %}
             </div>
-            <!--<div class="form-group">
-                {{ form.month_plan.label(class="form-control-label") }} {% if form.month_plan.errors %} {{ form.month_plan(class="form-control form-control-lg is-invalid") }}
-                <div class="invalid-feedback">
-                    {% for error in form.month_plan.errors %}
-                    <span>{{ error }}</span> {% endfor %}
-                </div>
-                {% else %} {{ form.month_plan(class="form-control form-control-lg") }} {% endif %}
-            </div>-->
-
-
         </fieldset>
         <div class="form-group">
             {{ form.submit(class="btn btn-outline-info") }}
