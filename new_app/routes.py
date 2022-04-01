@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import render_template, request, flash, url_for, redirect
 
 from new_app.forms import SpendingForm, MonthPlanForm, MonthTypeForm
+from new_app.helper.daily_plan_table import delta_flow_test
 from new_app.helper.month_plan_table import plan_to_dict, daily_overall_dict
 from new_app.helper.name_months import months_names
 from new_app.main import website, db
@@ -54,7 +55,8 @@ def month_plan_new():
 	form = MonthPlanForm()
 	if form.validate_on_submit():
 		monthplan = Month_plans(month=form.month.data, income=form.income.data, money_for_month=0,
-								money_for_day=0)  # todo change 0 to actual value calculated by plan| maybe add more if-coditions to calculate values properly?
+								money_for_day=form.income.data,
+								user_id=1)  # todo change 0 to actual value calculated by plan| maybe add more if-coditions to calculate values properly?
 		db.session.add(monthplan)
 		db.session.commit()
 		flash('Your month plan has been created', 'success')
@@ -90,13 +92,16 @@ def month_type_new(month_plan_id):
 										 month_plan=month_plan_id)  # todo change 0 to actual value calculated by plan| maybe add more if-coditions to calculate values properly?
 
 		db.session.add(monthtype)
+		if not monthtype.is_everyday: # currently left amount adds to daily delta flow#todo decide if left amount is adding to month or day
+			month_plan.money_for_day -= monthtype.amount_in_money
+			month_plan.money_for_month += monthtype.amount_in_money
 		db.session.commit()
 		flash('Your month plan has been created', 'success')
 		return redirect(url_for('month_plan_table_test', month_plan_id=month_plan_id))
 	return render_template('create_new_month_type.html', title='New Month Type', form=form, legend='New Month Type')
 
 
-@website.route('/planning/monthly/<int:month_plan_id>', methods=['GET', 'POST'])
+@website.route('/planning/monthly/<int:month_plan_id>', methods=['GET', 'POST']) #todo make adaptive to mobile screen|maybe media could help
 def month_plan_table_test(month_plan_id):
 	month_plan = Month_plans.query.get_or_404(month_plan_id)
 	days = monthrange(month_plan.month.year, month_plan.month.month)[1]
@@ -104,4 +109,23 @@ def month_plan_table_test(month_plan_id):
 	return render_template('month_plan.html', title=str(month_plan.month.month) + '.' + str(month_plan.month.year),
 						   month_plan=month_plan, legend='TEST LEGEND FOR MONTH PLAN',
 						   planDictionary=plan_to_dict(month_plan), days=days,
-						   monthOverall=daily_overall_dict(plan_to_dict(month_plan)))
+						   monthOverall=daily_overall_dict(plan_to_dict(month_plan),month_plan.income))
+
+
+@website.route('/planning/daily/delta_flow', methods=['GET', 'POST'])
+def delta_flow():
+	start_checkpoint = datetime.strptime('01.09.2021', '%d.%m.%Y').date()
+	next_checkpoint = datetime.strptime('30.09.2021', '%d.%m.%Y').date()
+
+	bla = Spendings.query.filter(Spendings.day >= start_checkpoint,
+								 Spendings.day <= next_checkpoint)  # todo change to normal name
+
+	month_plan_id = 1
+	month_plan_delta = Month_plans.query.get_or_404(
+		month_plan_id)  # todo think about an actual way to obtain month_id| should it be passed or queued in some way?
+	b=month_plan_delta.money_for_day
+
+	a = delta_flow_test(start_checkpoint, next_checkpoint, bla,month_plan_delta.money_for_day)
+
+
+	return render_template('delta_flow.html', delta_flow_results=a, start_checkpoint=start_checkpoint,next_checkpoint=next_checkpoint,prev_checkpoint=b)#todo check naming #todo format dates to human-friendly

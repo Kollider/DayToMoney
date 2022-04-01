@@ -1,0 +1,62 @@
+{% extends "layout.html" %} {% block content %}
+<article class="media content-section">
+<div class="media-body">
+    <!--<table>
+        <tr>
+            <td><p class="article-content" style="font-size: 1.4rem;">Start: {{ start_checkpoint }}</p></td>
+            <td rowspan="2"><p class="article-content" style="font-size: 1.4rem;">Money: {{ prev_checkpoint }}</p></td>
+
+
+        </tr>
+        <tr>
+            <td><p class="article-content" style="font-size: 1.4rem;">End: {{ next_checkpoint }}</p></td>
+
+        </tr>
+    </table>-->
+<p class="article-content" style="font-size: 1.4rem;float:left;">Start Date: {{ start_checkpoint }}   </p>
+<p class="article-content" style="font-size: 1.4rem;float:right;">Money: {{ prev_checkpoint }}</p>
+<p class="article-content" style="font-size: 1.4rem;clear:both;">End Date: {{ next_checkpoint }}</p>
+
+<table class="table">
+    <thead>
+    <tr class="table-info">
+        <!--<th scope="col">Date</th>
+        <th scope="col">Pocket</th>
+        <th scope="col">Result</th>
+        <th scope="col">Dynamic balance</th>
+        <th scope="col">Balance</th>
+        <th scope="col">Startday savings</th>
+        <th scope="col">Savings result</th>
+        <th scope="col">Endday savings</th>-->
+        <th scope="col">1</th>
+        <th scope="col">2</th>
+        <th scope="col">3</th>
+        <th scope="col">4</th>
+        <th scope="col">5</th>
+        <th scope="col">6</th>
+        <th scope="col">7</th>
+        <th scope="col">8</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for day in delta_flow_results %}
+        <tr>
+        <td>{{ day }}</td>
+        <td>{{ delta_flow_results[day]['day_start'] }} UAH</td>
+        <td>{{ delta_flow_results[day]['day_result'] }} UAH</td>
+        <td>{{ delta_flow_results[day]['dynamic_delta'] }}</td>
+        <td>{{ delta_flow_results[day]['dynamic_mid'] }}</td>
+        <td>{{ delta_flow_results[day]['static_mid'] }}</td>
+        <td>{{ delta_flow_results[day]['static_delta_day'] }}</td>
+        <td>{{ delta_flow_results[day]['static_delta_overall'] }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<p></p>
+
+
+</div>
+</article>
+{% endblock content %}

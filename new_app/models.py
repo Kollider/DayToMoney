@@ -12,6 +12,7 @@ class Users(db.Model):
 	password = db.Column(db.String(60), nullable=False)
 
 	spent = db.relationship('Spendings', backref='user_spent', lazy=True)
+	plans = db.relationship('Month_plans', backref='plans', lazy=True)
 
 
 class Spendings(db.Model):
@@ -22,7 +23,7 @@ class Spendings(db.Model):
 	quantity_type = db.Column(db.String(5), nullable=True, default='it')
 	spending_amount = db.Column(db.Float, nullable=True)
 
-	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1)
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1) #todo change id
 
 
 class Month_plans(db.Model):
@@ -33,6 +34,8 @@ class Month_plans(db.Model):
 	money_for_day = db.Column(db.Float, nullable=True, default=0)
 
 	list_of_planned_spending = db.relationship('Types_of_month_spend', backref='list_for_month', lazy=True)
+
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1)  # todo change id
 
 
 class Types_of_month_spend(db.Model):

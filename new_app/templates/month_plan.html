@@ -15,8 +15,8 @@
 </article>-->
 <article class="media content-section">
 <div class="media-body">
-    <p class="article-content" style="font-size: 2rem;float: right;">Income: {{ month_plan.income }}</p>
-    <p class="article-content" style="font-size: 2rem;float: left;">Days: {{ days }}</p>
+    <p class="article-content" style="font-size: 1.4rem;float: right;">Income: {{ month_plan.income }}</p>
+    <p class="article-content" style="font-size: 1.4rem;float: left;">Days: {{ days }}</p>
 
 
     <table class="table">
@@ -32,7 +32,7 @@
             <tbody>{% for type in planDictionary %}
                 <tr>
                     <td>{{ planDictionary[type]['name'] }}</td>
-                    <td style="">{{ planDictionary[type]['amount_in_percent'] }} %</td>
+                    <td>{{ planDictionary[type]['amount_in_percent'] }} %</td>
                     <td>{% if planDictionary[type]['daily'] %}{{ planDictionary[type]['daily'] }} UAH{% else %}{% endif %}</td>
                     <td>{{ planDictionary[type]['amount_in_money'] }} UAH</td>
 
