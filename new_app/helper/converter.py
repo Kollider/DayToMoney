@@ -2,7 +2,7 @@ def converter(test_val):  # ('1,93', 'л')
     quantity = test_val[0]
     quantity_type = test_val[1]
 
-    if ',' in quantity:
+    if ',' in str(quantity):
         quantity = quantity.replace(",", ".")
 
     match quantity_type:
