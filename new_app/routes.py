@@ -194,3 +194,23 @@ def delta_flow():
 	return render_template('delta_flow.html', delta_flow_results=a, start_checkpoint=start_checkpoint,
 						   next_checkpoint=next_checkpoint,
 						   prev_checkpoint=b)  # todo check naming #todo format dates to human-friendly
+
+
+@website.route('/planning/daily/delta_flow/test',
+			   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
+@login_required
+def delta_flow_month():
+	month_plan_id = request.args.get('month_plan_id')
+	month_plan_delta = Month_plans.query.get_or_404(month_plan_id)
+	start_checkpoint = datetime.strptime('01.'+f'{month_plan_delta.month.month}.{month_plan_delta.month.year}', '%d.%m.%Y').date()  # todo create form to choose date
+	next_checkpoint = datetime.strptime(f'{monthrange(month_plan_delta.month.year, month_plan_delta.month.month)[1]}.{month_plan_delta.month.month}.{month_plan_delta.month.year}','%d.%m.%Y').date()  # todo maybe add formFIELDS to choose date with button to redirect to itself on top of the delta
+	bla = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day >= start_checkpoint,
+																	Spendings.day <= next_checkpoint)  # todo change to normal name
+
+	b = month_plan_delta.money_for_day
+
+	a = delta_flow_test(start_checkpoint, next_checkpoint, bla, month_plan_delta.money_for_day)
+
+	return render_template('delta_flow.html', delta_flow_results=a, start_checkpoint=start_checkpoint,
+						   next_checkpoint=next_checkpoint,
+						   prev_checkpoint=b)# todo check naming #todo format dates to human-friendly

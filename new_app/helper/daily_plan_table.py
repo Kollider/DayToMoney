@@ -8,7 +8,7 @@ def delta_flow_test(start, end, daily_query, month_day_income):
 
 	dates_list = pd.date_range(start, end, freq='D')
 
-	prev_checkpoint = month_day_income  # todo change to actual income
+	prev_checkpoint = month_day_income
 
 	day_start = prev_checkpoint
 	day_result = 0

@@ -11,7 +11,13 @@
            <article class="media content-section"> <div class="media-body">
             <h2><a class="article-title" href="{{ url_for('month_plan_table_test', month_plan_id=test.id) }}">{{ test.month.year }} {{ myfunction(test.month.month) }}</a></h2>
 
-            </div><p class="article-content">{{ test.income }}</p></article>
+            </div>
+               <p class="article-content">{{ test.income }}
+                   <form action="{{ url_for('delta_flow_month', month_plan_id=test.id) }}" method="POST">
+                    <input class="btn btn-secondary btn-sm m-1" type="submit" value="Delta">
+                </form>
+               </p>
+           </article>
     {% endfor %}
 
 <!--Modal-->

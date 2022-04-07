@@ -48,7 +48,7 @@ class SpendingForm(FlaskForm):
 
 class MonthPlanForm(FlaskForm):
 	month = DateField('Month', validators=[DataRequired()], default=today)
-	income = FloatField('Income', validators=[DataRequired()])
+	income = FloatField('Income', validators=[DataRequired()]) #todo check if DecimalField on phone is more accurate
 	"""money_for_month=FloatField('Money for month')
 	money_for_day=FloatField('Money for day')"""
 
