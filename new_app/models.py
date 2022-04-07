@@ -22,6 +22,7 @@ class Users(db.Model, UserMixin):
 	username = db.Column(db.String(20), unique=True, nullable=False)
 	email = db.Column(db.String(120), unique=True, nullable=False)
 	password = db.Column(db.String(60), nullable=False)
+	status = db.Column(db.Boolean, default=False)
 
 	spent = db.relationship('Spendings', backref='user_spent', lazy=True)
 	plans = db.relationship('Month_plans', backref='plans', lazy=True)

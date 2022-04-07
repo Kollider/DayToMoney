@@ -2,9 +2,9 @@ from calendar import monthrange
 from datetime import datetime
 
 from flask import render_template, request, flash, url_for, redirect
-from flask_login import current_user
+from flask_login import current_user, login_user, logout_user
 
-from new_app.forms import SpendingForm, MonthPlanForm, MonthTypeForm, RegistrationForm
+from new_app.forms import SpendingForm, MonthPlanForm, MonthTypeForm, RegistrationForm, LoginForm
 from new_app.helper.daily_plan_table import delta_flow_test
 from new_app.helper.month_plan_table import plan_to_dict, daily_overall_dict
 from new_app.helper.name_months import months_names
@@ -23,7 +23,7 @@ def home():
 	return render_template('home.html', day_spendings=day_spendings)
 
 
-@website.route("/register", methods=['GET', 'POST']) # todo add login redirect to the end of html
+@website.route("/register", methods=['GET', 'POST'])  # todo add login redirect to the end of html
 def register():
 	if current_user.is_authenticated:
 		return redirect(url_for('home'))
@@ -37,6 +37,35 @@ def register():
 		flash('Your account has been created! You are now able to log in', 'success')
 		return redirect(url_for('home'))
 	return render_template('register.html', title='Register', form=form)
+
+
+@website.route("/login", methods=['GET', 'POST'])
+def login():
+	if current_user.is_authenticated:
+		return redirect(url_for('home'))
+	form = LoginForm()
+	if form.validate_on_submit():
+		user = Users.query.filter_by(email=form.email.data).first()
+		if user and bcrypt.check_password_hash(user.password, form.password.data):
+			user.status = True
+			db.session.add(user)
+			db.session.commit()
+			login_user(user, remember=form.remember.data)
+			next_page = request.args.get('next')
+			return redirect(next_page) if next_page else redirect(url_for('home'))
+		else:
+			flash('Login Unsuccessful. Please check email and password', 'danger')
+	return render_template('login.html', title='Login', form=form)
+
+
+@website.route("/logout")
+def logout():
+	user = current_user
+	user.status = False
+	db.session.add(user)
+	db.session.commit()
+	logout_user()
+	return redirect(url_for('home'))
 
 
 @website.route('/spendings', methods=['GET', 'POST'])
@@ -118,7 +147,8 @@ def month_type_new(month_plan_id):
 	return render_template('create_new_month_type.html', title='New Month Type', form=form, legend='New Month Type')
 
 
-@website.route('/planning/monthly/<int:month_plan_id>',methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
+@website.route('/planning/monthly/<int:month_plan_id>',
+			   methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
 def month_plan_table_test(month_plan_id):
 	month_plan = Month_plans.query.get_or_404(month_plan_id)
 	days = monthrange(month_plan.month.year, month_plan.month.month)[1]
@@ -129,7 +159,8 @@ def month_plan_table_test(month_plan_id):
 						   monthOverall=daily_overall_dict(plan_to_dict(month_plan), month_plan.income))
 
 
-@website.route('/planning/daily/delta_flow', methods=['GET', 'POST'])  # todo add description with article above/under actual delta
+@website.route('/planning/daily/delta_flow',
+			   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
 def delta_flow():
 	start_checkpoint = datetime.strptime('01.09.2021', '%d.%m.%Y').date()
 	next_checkpoint = datetime.strptime('30.09.2021', '%d.%m.%Y').date()

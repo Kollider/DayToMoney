@@ -28,6 +28,13 @@ class RegistrationForm(FlaskForm):
 				'That username is taken. Please choose a different one.')
 
 
+class LoginForm(FlaskForm):
+	email = StringField('Email', validators=[DataRequired(), Email()])
+	password = PasswordField('Password', validators=[DataRequired()])
+	remember = BooleanField('Remember Me')
+	submit = SubmitField('Login')
+
+
 class SpendingForm(FlaskForm):
 	day = DateField('Day', validators=[DataRequired()], default=today)
 	name_of_item = StringField('Name of item', validators=[
