@@ -1,8 +1,31 @@
 from dateutil.utils import today
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FloatField, BooleanField, SelectField
+from wtforms import StringField, SubmitField, FloatField, BooleanField, SelectField, PasswordField
 from wtforms.fields.html5 import DateField, DecimalField, IntegerField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+
+from new_app.models import Users
+
+
+class RegistrationForm(FlaskForm):
+	username = StringField('Username', validators=[
+		DataRequired(), Length(min=2, max=20)])
+	email = StringField('Email', validators=[DataRequired(), Email()])
+	password = PasswordField('Password', validators=[DataRequired()])
+	confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+	submit = SubmitField('Sign Up')
+
+	def validate_email(self, email):
+		user = Users.query.filter_by(email=email.data).first()
+		if user:
+			raise ValidationError(
+				'That email is taken. Please choose a different one.')
+
+	def validate_username(self, username):
+		user = Users.query.filter_by(username=username.data).first()
+		if user:
+			raise ValidationError(
+				'That username is taken. Please choose a different one.')
 
 
 class SpendingForm(FlaskForm):
@@ -27,7 +50,7 @@ class MonthPlanForm(FlaskForm):
 
 class MonthTypeForm(FlaskForm):
 	name_of_type = StringField('Name of type')
-	amount_choice = SelectField('Type of amount', choices=[('percent', '%'), ('money', 'UAH')],validate_choice=False)
+	amount_choice = SelectField('Type of amount', choices=[('percent', '%'), ('money', 'UAH')], validate_choice=False)
 	amount = FloatField('Amount')
 	is_default = BooleanField('Default')
 	is_everyday = BooleanField('Every day')

@@ -1,11 +1,23 @@
 import datetime
 
+from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy import true, false
 
-from new_app.main import db
+from new_app.main import db, login_manager
 
 
-class Users(db.Model):
+@login_manager.user_loader
+def load_user(user_id):
+	return Users.query.get(int(user_id))
+
+
+class Anonymous(AnonymousUserMixin):
+	def __init__(self):
+		self.username = 'Guest'
+		self.status = False
+
+
+class Users(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(20), unique=True, nullable=False)
 	email = db.Column(db.String(120), unique=True, nullable=False)
@@ -23,7 +35,7 @@ class Spendings(db.Model):
 	quantity_type = db.Column(db.String(5), nullable=True, default='it')
 	spending_amount = db.Column(db.Float, nullable=True)
 
-	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1) #todo change id
+	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1)  # todo change id
 
 
 class Month_plans(db.Model):
