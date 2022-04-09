@@ -1,10 +1,14 @@
+from calendar import monthrange
+
 from dateutil.utils import today
+from datetime import datetime
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FloatField, BooleanField, SelectField, PasswordField
 from wtforms.fields.html5 import DateField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
-from new_app.models import Users
+from new_app.models import Users, Month_plans
 
 
 class RegistrationForm(FlaskForm):
@@ -37,22 +41,33 @@ class LoginForm(FlaskForm):
 
 class SpendingForm(FlaskForm):
 	day = DateField('Day', validators=[DataRequired()], default=today)
-	name_of_item = StringField('Name of item', validators=[
-		DataRequired()])  # todo possible two fields: regular text and select from database - group by name and count occurencies and sort by that number#todo autocomplete when possible
+	name_of_item = StringField('Name of item', validators=[DataRequired()])
+	# todo possible two fields: regular text and select from database - group by name and count occurencies and sort
+	#  by that number#todo autocomplete when possible
 	quantity = FloatField('Quantity', validators=[DataRequired()])
-	quantity_type = SelectField('Quantity type', choices=['л', 'мл', 'кг', 'г',
-														  'шт'])  # StringField('Quantity type', validators=[DataRequired()])
+	quantity_type = SelectField('Quantity type', choices=['л', 'мл', 'кг', 'г', 'шт'])
 	spending_amount = DecimalField('Spending amount', validators=[DataRequired()])
 	submit = SubmitField('Send')
 
 
 class MonthPlanForm(FlaskForm):
-	month = DateField('Month', validators=[DataRequired()], default=today)
-	income = FloatField('Income', validators=[DataRequired()]) #todo check if DecimalField on phone is more accurate
-	"""money_for_month=FloatField('Money for month')
-	money_for_day=FloatField('Money for day')"""
+	month = DateField('Month', validators=[DataRequired()])
+	income = FloatField('Income', validators=[DataRequired()])  # todo check if DecimalField on phone is more accurate
+	submit = SubmitField('Add')
 
-	submit = SubmitField('Send')
+	def validate_month(self, month):
+		date_from_form = month.data
+		if date_from_form:
+			comparable_date_start = datetime.strptime('01.' + f'{date_from_form.month}.{date_from_form.year}',
+													  '%d.%m.%Y').date()
+			comparable_date_end = datetime.strptime(
+				f'{monthrange(date_from_form.year, date_from_form.month)[1]}.{date_from_form.month}.{date_from_form.year}',
+				'%d.%m.%Y').date()
+			month_date = Month_plans.query.filter_by(user_id=current_user.id).filter(
+				Month_plans.month >= comparable_date_start, Month_plans.month <= comparable_date_end).first()
+			if month_date:
+				raise ValidationError(
+					'You already have a plan for this month')
 
 
 class MonthTypeForm(FlaskForm):
@@ -62,5 +77,4 @@ class MonthTypeForm(FlaskForm):
 	is_default = BooleanField('Default')
 	is_everyday = BooleanField('Every day')
 	# month_plan=IntegerField('Month plan')
-
-	submit = SubmitField('Send')
+	submit = SubmitField('Add')
