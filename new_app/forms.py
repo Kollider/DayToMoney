@@ -57,7 +57,7 @@ class MonthPlanForm(FlaskForm):
 
 class MonthTypeForm(FlaskForm):
 	name_of_type = StringField('Name of type')
-	amount_choice = SelectField('Type of amount', choices=[('percent', '%'), ('money', 'UAH')], validate_choice=False)
+	amount_choice = SelectField('Type of amount', choices=[('percent', '%'), ('money', '₴')], validate_choice=False)
 	amount = FloatField('Amount')
 	is_default = BooleanField('Default')
 	is_everyday = BooleanField('Every day')

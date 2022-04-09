@@ -8,12 +8,12 @@ def delta_flow_test(start, end, daily_query, month_day_income):
 
 	dates_list = pd.date_range(start, end, freq='D')
 
-	prev_checkpoint = month_day_income
+	income = month_day_income
 
-	day_start = prev_checkpoint
+	day_start = income
 	day_result = 0
 
-	average_for_day = prev_checkpoint / len(dates_list)
+	average_for_day = income / len(dates_list)
 
 	static_delta_overall = 0
 
@@ -33,7 +33,7 @@ def delta_flow_test(start, end, daily_query, month_day_income):
 		static_delta_day = static_mid + day_result - static_delta_overall
 		static_delta_overall = static_mid + day_result
 
-		planDict[f'{date.date()}'] = {
+		planDict[f'{date.date().strftime("%d.%m")}'] = { #todo add link to spendings for every day to view spendings
 			'day_start': round(day_start, 2),
 			'day_result': round(day_result, 2),
 			'dynamic_delta': round(dynamic_delta, 2),

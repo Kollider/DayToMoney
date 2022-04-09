@@ -33,8 +33,8 @@
                 <tr>
                     <td>{{ planDictionary[type]['name'] }}</td>
                     <td>{{ planDictionary[type]['amount_in_percent'] }} %</td>
-                    <td>{% if planDictionary[type]['daily'] %}{{ planDictionary[type]['daily'] }} UAH{% else %}{% endif %}</td>
-                    <td>{{ planDictionary[type]['amount_in_money'] }} UAH</td>
+                    <td>{% if planDictionary[type]['daily'] %}{{ planDictionary[type]['daily'] }} ₴{% else %}{% endif %}</td>
+                    <td>{{ planDictionary[type]['amount_in_money'] }} ₴</td>
 
                 </tr>{% endfor %}
             <tr>
@@ -46,14 +46,14 @@
             <tr>
                 <td>Overall Day</td>
                 <td>{{ monthOverall['overall_day_percent'] }} %</td>
-                <td>{{ monthOverall['overall_day_daily'] }} UAH</td>
-                <td>{{ monthOverall['overall_day_amount'] }} UAH</td>
+                <td>{{ monthOverall['overall_day_daily'] }} ₴</td>
+                <td>{{ monthOverall['overall_day_amount'] }} ₴</td>
             </tr>
             <tr>
                 <td>Overall Month</td>
                 <td>{{ monthOverall['overall_month_percent'] }} %</td>
                 <td> </td>
-                <td>{{ monthOverall['overall_month_amount'] }} UAH</td>
+                <td>{{ monthOverall['overall_month_amount'] }} ₴</td>
             </tr>
             <tr>
                 <td></td>

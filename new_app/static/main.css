@@ -78,3 +78,8 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+.one-line-table {
+  white-space: nowrap;
+  overflow: hidden;
+}
