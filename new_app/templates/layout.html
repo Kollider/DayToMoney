@@ -29,18 +29,18 @@
               <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
                 {% if current_user.status==True %}
 
-              <a class="nav-item nav-link" href="{{ url_for('spendings') }}">Spendings</a>
+              <a class="nav-item nav-link" href="{{ url_for('spendings') }}">Purchases</a>
               <a class="nav-item nav-link" href="{{ url_for('show_all_months') }}">All plans</a>
                 {% endif %}
             </div>
             <!-- Navbar Right Side -->
               <div class="navbar-nav">
                         <!--<a class="nav-item nav-link" href="{{ url_for('show_all_types') }}">All types</a>-->
-                  <a class="nav-item nav-link" href="{{ url_for('delta_flow') }}">Delta</a>
+                  <!--<a class="nav-item nav-link" href="{{ url_for('delta_flow') }}">Delta</a>-->
                   {% if current_user.is_authenticated %} {% if current_user.status==False %}
-                    <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">New Spend</a>
+                    <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">Add purchase</a>
                   {% endif %}
-                    <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">New Spend</a>
+                    <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">Add purchase</a>
                     <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
                   {% else %}
 

@@ -50,8 +50,8 @@ class SpendingForm(FlaskForm):
 	submit = SubmitField('Send')
 
 
-class MonthPlanForm(FlaskForm):
-	month = DateField('Month', validators=[DataRequired()])
+class MonthPlanForm(FlaskForm): #todo rethink the validation because it prevents from editing the month plan| dynamic validation
+	month = DateField('Month', validators=[DataRequired()], default=today)
 	income = FloatField('Income', validators=[DataRequired()])  # todo check if DecimalField on phone is more accurate
 	submit = SubmitField('Add')
 

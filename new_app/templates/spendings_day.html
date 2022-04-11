@@ -1,0 +1,17 @@
+{% extends "layout.html" %} {% block content %}
+    {% if not day_spending %}
+    <article class="media content-section">
+        No purchases for this day
+    </article>
+{% endif %}
+    {% for  day in day_spending%}
+        <h1>{{ day.day }}</h1>
+        <p>{{ day.name_of_item }}</p>
+        <p>{{ day.quantity }}</p>
+        <p>{{ day.quantity_type }}</p>
+        <p>{{ day.spending_amount }}</p>
+        <p>{{ day.user_id }}</p>
+    {% endfor %}
+
+
+{% endblock content %}

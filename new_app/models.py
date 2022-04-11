@@ -39,7 +39,7 @@ class Spendings(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1)  # todo change id
 
 
-class Month_plans(db.Model):
+class Month_plans(db.Model): #todo think about cascading delete with sqlalchemy
 	id = db.Column(db.Integer, primary_key=True)
 	month = db.Column(db.Date, nullable=true)
 	income = db.Column(db.Float, nullable=True, default=0)

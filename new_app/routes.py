@@ -1,5 +1,5 @@
 from calendar import monthrange
-from datetime import datetime
+from datetime import datetime, date
 
 from flask import render_template, request, flash, url_for, redirect
 from flask_login import current_user, login_user, logout_user, login_required
@@ -16,12 +16,38 @@ from new_app.models import Spendings, Month_plans, Types_of_month_spend, Users
 @website.route("/")
 @website.route("/home", methods=['GET', 'POST'])
 def home():
-	page = request.args.get('page', 1, type=int)
-	start_checkpoint = datetime.strptime('01.09.2021', '%d.%m.%Y').date()
-	next_checkpoint = datetime.strptime('30.09.2021', '%d.%m.%Y').date()
-	delta = next_checkpoint - start_checkpoint
-	day_spendings = Spendings.query.filter(Spendings.day >= start_checkpoint, Spendings.day <= next_checkpoint)
-	return render_template('home.html')
+	if current_user.status != True:
+		flash('Please login to use Day to Money', 'danger')
+		return redirect(url_for('about'))
+	today_date = date.today()
+	day_spending = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day == today_date).order_by(
+		Spendings.id.desc()).all()
+
+	start_checkpoint = datetime.strptime('01.' + f'{today_date.month}.{today_date.year}', '%d.%m.%Y').date()
+	next_checkpoint = datetime.strptime(
+		f'{monthrange(today_date.year, today_date.month)[1]}.{today_date.month}.{today_date.year}', '%d.%m.%Y').date()
+
+	bla = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day >= start_checkpoint,
+																	Spendings.day <= next_checkpoint)
+
+	month_plan_delta = Month_plans.query.filter_by(user_id=current_user.id).filter(
+		Month_plans.month >= start_checkpoint, Month_plans.month <= next_checkpoint).first()
+
+	if not month_plan_delta:  # If user doesn't have a month plan this prevents error
+		flash("You don't have a plan for current month. Please add plan", 'danger')
+		return redirect(url_for('show_all_months'))
+
+	a = delta_flow_test(start_checkpoint, next_checkpoint, bla, month_plan_delta.money_for_day)
+	dynamic_mid = a[f'{today_date.strftime("%d.%m")}']['dynamic_mid']
+	day_sum = a[f'{today_date.strftime("%d.%m")}']['day_result']
+
+	return render_template('home.html', day_spending=day_spending, dynamic_mid=dynamic_mid, day_sum=day_sum,
+						   today_date=today_date)
+
+
+@website.route('/about')
+def about():
+	return render_template('about.html')
 
 
 @website.route("/register", methods=['GET', 'POST'])  # todo add login redirect to the end of html
@@ -70,11 +96,25 @@ def logout():
 	return redirect(url_for('home'))
 
 
-@website.route('/spendings', methods=['GET', 'POST'])
+@website.route('/spending/all', methods=['GET', 'POST'])
+@login_required
 def spendings():
 	page = request.args.get('page', 1, type=int)
-	day_spending = Spendings.query.filter_by(user_id=current_user.id).order_by(Spendings.id.desc()).paginate(page=page, per_page=5)
+	day_spending = Spendings.query.filter_by(user_id=current_user.id).order_by(Spendings.id.desc()).paginate(page=page,
+																											 per_page=10)
 	return render_template('spendings.html', day_spending=day_spending)
+
+
+@website.route('/spending/day')
+@login_required
+def spendings_day():
+	a = request.args.get('start_day')  # todo rename variable
+	b = request.args.get('day')  # todo rename variable
+	c = datetime.strptime(f'{b}.{a[:4]}', '%d.%m.%Y').date()  # todo rename variable
+
+	day_spending = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day == c).order_by(
+		Spendings.id.desc()).all()
+	return render_template('spendings_day.html', day_spending=day_spending)
 
 
 @website.route('/spending/new', methods=['GET', 'POST'])
@@ -96,11 +136,61 @@ def new_spending():
 	return render_template('create_new_spending.html', title='New Spending', form=form, legend='New Spending')
 
 
+@website.route('/spending/<int:spending_id>')
+@login_required
+def spending(spending_id):
+	if current_user.status != True:
+		return redirect(url_for('home'))
+	spending = Spendings.query.get_or_404(spending_id)
+	return render_template('spending.html', title=spending.name_of_item, purchase=spending)
+
+
+@website.route('/spending/<int:spending_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_spending(spending_id):
+	if current_user.status != True:
+		return redirect(url_for('home'))
+	spending = Spendings.query.get_or_404(spending_id)
+	db.session.delete(spending)
+	db.session.commit()
+	flash('Purchase has been deleted!', 'success')
+	return redirect(url_for('home'))
+
+
+@website.route('/spending/<int:spending_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_spending(spending_id):
+	if current_user.status != True:
+		return redirect(url_for('home'))
+	spending = Spendings.query.get_or_404(spending_id)
+	form = SpendingForm()
+	if form.validate_on_submit():
+		spending.day = form.day.data,
+		spending.name_of_item = form.name_of_item.data,
+		spending.quantity = form.quantity.data,
+		spending.quantity_type = form.quantity_type.data,
+		spending.spending_amount = form.spending_amount.data,
+
+		validate_spendings(spending)
+
+		db.session.commit()
+		flash('Purchase has been updated!', 'success')
+		return redirect(url_for('spending', spending_id=spending.id))
+	elif request.method == 'GET':
+		form.day.data = spending.day
+		form.name_of_item.data = spending.name_of_item
+		form.quantity.data = spending.quantity
+		form.quantity_type.data = spending.quantity_type
+		form.spending_amount.data = spending.spending_amount
+	return render_template('create_new_spending.html', title='Edit Purchase', legend='Edit Purchase', form=form)
+
+
 @website.route('/planning/monthly/months', methods=['GET', 'POST'])
 @login_required
 def show_all_months():
 	page = request.args.get('page', 1, type=int)
-	month_plans = Month_plans.query.filter_by(user_id=current_user.id).order_by(Month_plans.id.desc()).paginate(page=page, per_page=5)
+	month_plans = Month_plans.query.filter_by(user_id=current_user.id).order_by(Month_plans.month.desc()).paginate(
+		page=page, per_page=5)
 	return render_template('monthplanning.html', month_plans=month_plans, myfunction=months_names)
 
 
@@ -111,7 +201,8 @@ def month_plan_new():
 	if form.validate_on_submit():
 		monthplan = Month_plans(month=form.month.data,
 								income=form.income.data,
-								money_for_month=0, # todo change 0 to actual value calculated by plan| maybe add more if-coditions to calculate values properly?
+								money_for_month=0,
+								# todo change 0 to actual value calculated by plan| maybe add more if-coditions to calculate values properly?
 								money_for_day=form.income.data,
 								user_id=current_user.id)
 		db.session.add(monthplan)
@@ -121,12 +212,61 @@ def month_plan_new():
 	return render_template('create_new_month_plan.html', title='New Month Plan', form=form, legend='New Month Plan')
 
 
+@website.route('/planning/monthly/<int:month_plan_id>',
+			   methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
+@login_required
+def month_plan_table_test(month_plan_id):
+	month_plan = Month_plans.query.get_or_404(month_plan_id)
+	days = monthrange(month_plan.month.year, month_plan.month.month)[1]
+
+	return render_template('month_plan.html', title=str(month_plan.month.month) + '.' + str(month_plan.month.year),
+						   month_plan=month_plan, legend='TEST LEGEND FOR MONTH PLAN',
+						   planDictionary=plan_to_dict(month_plan), days=days,
+						   monthOverall=daily_overall_dict(plan_to_dict(month_plan), month_plan.income))
+
+
+@website.route('/planning/monthly/<int:month_plan_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_month_plan(month_plan_id):
+	if not current_user.status:
+		return redirect(url_for('about'))
+	month_plan = Month_plans.query.get_or_404(month_plan_id)
+	db.session.delete(month_plan)
+	db.session.commit()
+	flash('Month plan deleted successfully', 'success')
+	return redirect(url_for('show_all_months'))
+
+
+@website.route('/planning/monthly/<int:month_plan_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_month_plan(month_plan_id):
+	if not current_user.status:
+		return redirect(url_for('about'))
+	month_plan = Month_plans.query.get_or_404(month_plan_id)
+	form = MonthPlanForm()
+	if form.validate_on_submit():
+		month_plan.month = form.month.data
+		month_plan.income = form.income.data
+		db.session.commit()
+		flash('Month plan has been edited successfully','success')
+		return redirect(url_for('month_plan_table_test',month_plan_id=month_plan.id))
+	elif request.method == 'GET':
+		form.month.data = month_plan.month
+		form.income.data = month_plan.income
+	return render_template('create_new_month_plan.html', title='Edit Month Plan', legend='Edit Month Plan', form=form)
+
+
+
 @website.route('/planning/monthly/types/all', methods=['GET', 'POST'])
 @login_required
 def show_all_types():
 	page = request.args.get('page', 1, type=int)
-	#plans = [plan for plan in Users.query.filter_by(id=current_user.id).first().plans]
-	month_types = Types_of_month_spend.query.filter(Types_of_month_spend.month_plan.in_([plan_id.id for plan_id in [plan for plan in Users.query.filter_by(id=current_user.id).first().plans]])).order_by(Types_of_month_spend.id.desc()).paginate(page=page, per_page=5)
+	# plans = [plan for plan in Users.query.filter_by(id=current_user.id).first().plans]
+	month_types = Types_of_month_spend.query.filter(Types_of_month_spend.month_plan.in_([plan_id.id for plan_id in
+																						 [plan for plan in
+																						  Users.query.filter_by(
+																							  id=current_user.id).first().plans]])).order_by(
+		Types_of_month_spend.id.desc()).paginate(page=page, per_page=5)
 	return render_template('month_types_all.html', month_types=month_types)
 
 
@@ -161,25 +301,13 @@ def month_type_new(month_plan_id):
 	return render_template('create_new_month_type.html', title='New Month Type', form=form, legend='New Month Type')
 
 
-@website.route('/planning/monthly/<int:month_plan_id>',
-			   methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
-@login_required
-def month_plan_table_test(month_plan_id):
-	month_plan = Month_plans.query.get_or_404(month_plan_id)
-	days = monthrange(month_plan.month.year, month_plan.month.month)[1]
-
-	return render_template('month_plan.html', title=str(month_plan.month.month) + '.' + str(month_plan.month.year),
-						   month_plan=month_plan, legend='TEST LEGEND FOR MONTH PLAN',
-						   planDictionary=plan_to_dict(month_plan), days=days,
-						   monthOverall=daily_overall_dict(plan_to_dict(month_plan), month_plan.income))
-
-
 @website.route('/planning/daily/delta_flow',
 			   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
 @login_required
 def delta_flow():
 	start_checkpoint = datetime.strptime('01.09.2021', '%d.%m.%Y').date()  # todo create form to choose date
-	next_checkpoint = datetime.strptime('30.09.2021', '%d.%m.%Y').date()  # todo maybe add formFIELDS to choose date with button to redirect to itself on top of the delta
+	next_checkpoint = datetime.strptime('30.09.2021',
+										'%d.%m.%Y').date()  # todo maybe add formFIELDS to choose date with button to redirect to itself on top of the delta
 
 	bla = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day >= start_checkpoint,
 																	Spendings.day <= next_checkpoint)  # todo change to normal name
@@ -191,7 +319,8 @@ def delta_flow():
 
 	a = delta_flow_test(start_checkpoint, next_checkpoint, bla, month_plan_delta.money_for_day)
 
-	return render_template('delta_flow.html', delta_flow_results=a, start_checkpoint=start_checkpoint.strftime("%d.%m.%y"),
+	return render_template('delta_flow.html', delta_flow_results=a,
+						   start_checkpoint=start_checkpoint.strftime("%d.%m.%y"),
 						   next_checkpoint=next_checkpoint.strftime("%d.%m.%y"),
 						   prev_checkpoint=b)  # todo check naming #todo format dates to human-friendly
 
@@ -202,8 +331,11 @@ def delta_flow():
 def delta_flow_month():
 	month_plan_id = request.args.get('month_plan_id')
 	month_plan_delta = Month_plans.query.get_or_404(month_plan_id)
-	start_checkpoint = datetime.strptime('01.'+f'{month_plan_delta.month.month}.{month_plan_delta.month.year}', '%d.%m.%Y').date()  # todo create form to choose date
-	next_checkpoint = datetime.strptime(f'{monthrange(month_plan_delta.month.year, month_plan_delta.month.month)[1]}.{month_plan_delta.month.month}.{month_plan_delta.month.year}','%d.%m.%Y').date()  # todo maybe add formFIELDS to choose date with button to redirect to itself on top of the delta
+	start_checkpoint = datetime.strptime('01.' + f'{month_plan_delta.month.month}.{month_plan_delta.month.year}',
+										 '%d.%m.%Y').date()  # todo create form to choose date
+	next_checkpoint = datetime.strptime(
+		f'{monthrange(month_plan_delta.month.year, month_plan_delta.month.month)[1]}.{month_plan_delta.month.month}.{month_plan_delta.month.year}',
+		'%d.%m.%Y').date()  # todo maybe add formFIELDS to choose date with button to redirect to itself on top of the delta
 	bla = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day >= start_checkpoint,
 																	Spendings.day <= next_checkpoint)  # todo change to normal name
 
@@ -213,4 +345,4 @@ def delta_flow_month():
 
 	return render_template('delta_flow.html', delta_flow_results=a, start_checkpoint=start_checkpoint,
 						   next_checkpoint=next_checkpoint,
-						   prev_checkpoint=b)# todo check naming #todo format dates to human-friendly
+						   prev_checkpoint=b)  # todo check naming #todo format dates to human-friendly
