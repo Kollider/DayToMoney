@@ -1,5 +1,5 @@
 {% extends "layout.html" %} {% block content %}
-    <a class="nav-item nav-link" href="{{ url_for('show_all_months') }}">Back to all plans</a>
+    <a class="btn btn-outline-primary btn-block" href="{{ url_for('show_all_months') }}">Back to all plans</a>
 <!-- <article class="media content-section">
     <div class="media-body">
         <div class="article-metadata">
@@ -31,7 +31,12 @@
             </thead>
             <tbody>{% for type in planDictionary %}
                 <tr>
-                    <td>{{ planDictionary[type]['name'] }}</td>
+
+                    <td>
+                        <a class="article-title" href="{{ url_for('month_type_single', month_type_id=planDictionary[type]['id'],month_plan_id= month_plan.id) }}">
+                            {{ planDictionary[type]['name'] }}
+                        </a>
+                    </td>
                     <td>{{ planDictionary[type]['amount_in_percent'] }} %</td>
                     <td>{% if planDictionary[type]['daily'] %}{{ planDictionary[type]['daily'] }} ₴{% else %}{% endif %}</td>
                     <td>{{ planDictionary[type]['amount_in_money'] }} ₴</td>
@@ -62,7 +67,7 @@
                 <td></td>
             </tr>
             <tr>
-                <td>Left</td>
+                <td>Remains</td>
                 <td>{{ monthOverall['left_percent'] }} %</td>
                 <td></td>
                 <td>{% if monthOverall['left_amount']!=0 %}{{ monthOverall['left_amount'] }}{% else %}{{ month_plan.income }}{% endif %}</td>

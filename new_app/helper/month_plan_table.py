@@ -7,6 +7,7 @@ def plan_to_dict(month_plan):
 
 	for month_type in month_plan.list_of_planned_spending:
 		planDict[f'{month_type.name_of_type}'] = {
+			'id':month_type.id,
 			'name': f'{month_type.name_of_type}',
 			'amount_in_money': round(month_type.amount_in_money, 2),
 			'amount_in_percent': round(month_type.amount_in_percent, 2),
