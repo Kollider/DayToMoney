@@ -17,7 +17,7 @@ from new_app.models import Spendings, Month_plans, Types_of_month_spend, Users
 @website.route("/home", methods=['GET', 'POST'])
 def home():
 	if current_user.status != True:
-		flash('Please login to use Day to Money', 'danger')
+		flash('Please login to use Day to Money', 'success')
 		return redirect(url_for('about'))
 	today_date = date.today()
 	day_spending = Spendings.query.filter_by(user_id=current_user.id).filter(Spendings.day == today_date).order_by(
@@ -40,9 +40,10 @@ def home():
 	a = delta_flow_test(start_checkpoint, next_checkpoint, bla, month_plan_delta.money_for_day)
 	dynamic_mid = a[f'{today_date.strftime("%d.%m")}']['dynamic_mid']
 	day_sum = a[f'{today_date.strftime("%d.%m")}']['day_result']
+	mid_sum_delta = round(dynamic_mid+day_sum,2)
 
 	return render_template('home.html', day_spending=day_spending, dynamic_mid=dynamic_mid, day_sum=day_sum,
-						   today_date=today_date)
+						   today_date=today_date,mid_sum_delta=mid_sum_delta)
 
 
 @website.route('/about')
@@ -62,7 +63,7 @@ def register():
 		db.session.add(user)
 		db.session.commit()
 		flash('Your account has been created! You are now able to log in', 'success')
-		return redirect(url_for('home'))
+		return redirect(url_for('about'))
 	return render_template('register.html', title='Register', form=form)
 
 
@@ -102,6 +103,7 @@ def spendings():
 	page = request.args.get('page', 1, type=int)
 	day_spending = Spendings.query.filter_by(user_id=current_user.id).order_by(Spendings.id.desc()).paginate(page=page,
 																											 per_page=10)
+	print(day_spending.items)
 	return render_template('spendings.html', day_spending=day_spending)
 
 
@@ -133,7 +135,7 @@ def new_spending():
 		db.session.commit()
 		flash('Your spending has been created', 'success')
 		return redirect(url_for('home'))
-	return render_template('create_new_spending.html', title='New Spending', form=form, legend='New Spending')
+	return render_template('create_new_spending.html', title='New Purchase', form=form, legend='New Purchase')
 
 
 @website.route('/spending/<int:spending_id>')
@@ -165,11 +167,11 @@ def edit_spending(spending_id):
 	spending = Spendings.query.get_or_404(spending_id)
 	form = SpendingForm()
 	if form.validate_on_submit():
-		spending.day = form.day.data,
-		spending.name_of_item = form.name_of_item.data,
-		spending.quantity = form.quantity.data,
-		spending.quantity_type = form.quantity_type.data,
-		spending.spending_amount = form.spending_amount.data,
+		spending.day = form.day.data
+		spending.name_of_item = form.name_of_item.data
+		spending.quantity = form.quantity.data
+		spending.quantity_type = form.quantity_type.data
+		spending.spending_amount = form.spending_amount.data
 
 		validate_spendings(spending)
 
@@ -208,7 +210,7 @@ def month_plan_new():
 		db.session.add(monthplan)
 		db.session.commit()
 		flash('Your month plan has been created', 'success')
-		return redirect(url_for('home'))
+		return redirect(url_for('show_all_months'))
 	return render_template('create_new_month_plan.html', title='New Month Plan', form=form, legend='New Month Plan')
 
 
@@ -248,13 +250,12 @@ def edit_month_plan(month_plan_id):
 		month_plan.month = form.month.data
 		month_plan.income = form.income.data
 		db.session.commit()
-		flash('Month plan has been edited successfully','success')
-		return redirect(url_for('month_plan_table_test',month_plan_id=month_plan.id))
+		flash('Month plan has been edited successfully', 'success')
+		return redirect(url_for('month_plan_table_test', month_plan_id=month_plan.id))
 	elif request.method == 'GET':
 		form.month.data = month_plan.month
 		form.income.data = month_plan.income
 	return render_template('create_new_month_plan.html', title='Edit Month Plan', legend='Edit Month Plan', form=form)
-
 
 
 @website.route('/planning/monthly/types/all', methods=['GET', 'POST'])
@@ -300,6 +301,69 @@ def month_type_new(month_plan_id):
 		return redirect(url_for('month_plan_table_test', month_plan_id=month_plan_id))
 	return render_template('create_new_month_type.html', title='New Month Type', form=form, legend='New Month Type')
 
+
+@website.route('/planning/monthly/<int:month_plan_id>/types/<int:month_type_id>')
+@login_required
+def month_type_single(month_type_id, month_plan_id):
+	if not current_user.status:
+		return redirect(url_for('home'))
+	month_type_expense = Types_of_month_spend.query.get_or_404(month_type_id)
+	bla = month_plan_id
+	return render_template('month_type_single.html', title=month_type_expense.name_of_type,
+						   month_type=month_type_expense, month_plan_id=bla)
+
+
+@website.route('/planning/monthly/types/<int:month_type_id>/delete', methods=['GET', 'POST'])
+@login_required
+def delete_month_type(month_type_id):
+	if not current_user.status:
+		return redirect(url_for('home'))
+	month_type_expense = Types_of_month_spend.query.get_or_404(month_type_id)
+	db.session.delete(month_type_expense)
+	db.session.commit()
+	flash('Type has been deleted.', 'success')
+	return redirect(url_for('home'))
+
+
+@website.route('/planning/monthly/<int:month_plan_id>/types/<int:month_type_id>/delete', methods=['GET', 'POST'])
+@login_required
+def edit_month_type(month_plan_id, month_type_id):
+	if not current_user.status:
+		return redirect(url_for('about'))
+	month_type_expense = Types_of_month_spend.query.get_or_404(month_type_id)
+	form = MonthTypeForm()
+	month_plan = Month_plans.query.get_or_404(month_plan_id)
+	if form.validate_on_submit():
+		type_income = month_plan.income
+		if form.amount_choice.data == 'percent':
+			amount_in_percent = form.amount.data
+			amount_in_money = type_income * amount_in_percent / 100
+		elif form.amount_choice.data == 'money':
+			amount_in_money = form.amount.data
+			amount_in_percent = amount_in_money / type_income * 100
+
+		month_type_expense.name_of_type = form.name_of_type.data,
+		month_type_expense.amount_in_percent = round(amount_in_percent, 2),
+		month_type_expense.amount_in_money = round(amount_in_money, 2),
+		month_type_expense.is_default = form.is_default.data,
+		month_type_expense.is_everyday = form.is_everyday.data,
+		month_type_expense.month_plan = month_plan_id
+		if not month_type_expense.is_everyday:  # currently left amount adds to daily delta flow#todo decide if left amount is adding to month or day
+			month_plan.money_for_day -= month_type_expense.amount_in_money
+			month_plan.money_for_month += month_type_expense.amount_in_money
+		db.session.commit()
+		flash('Expense type for month has been edited successfully', 'success')
+		return redirect(url_for('month_type_single', month_type_id=month_type_expense.id, month_plan_id=month_plan.id))
+	elif request.method == 'GET':
+		form.name_of_type.data = month_type_expense.name_of_type
+		form.amount_choice.data = 'money'
+		form.amount.data = month_type_expense.amount_in_money
+		form.is_everyday.data = month_type_expense.is_everyday
+	return render_template('create_new_month_type.html', title='Edit Month Type', legend='Edit Month Type', form=form,
+						   month_plan_id=month_plan.id)
+
+
+# todo add edit month_type
 
 @website.route('/planning/daily/delta_flow',
 			   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
