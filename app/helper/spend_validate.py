@@ -1,4 +1,4 @@
-from new_app.helper.converter import converter
+from app.helper.converter import converter
 
 
 def validate_spendings(spending):
