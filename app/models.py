@@ -1,9 +1,8 @@
 import datetime
 
 from flask_login import UserMixin, AnonymousUserMixin
-from sqlalchemy import true, false
 
-from new_app.main import db, login_manager
+from . import db, login_manager
 
 
 @login_manager.user_loader
@@ -39,9 +38,9 @@ class Spendings(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True, default=1)  # todo change id
 
 
-class Month_plans(db.Model): #todo think about cascading delete with sqlalchemy
+class Month_plans(db.Model):  # todo think about cascading delete with sqlalchemy
 	id = db.Column(db.Integer, primary_key=True)
-	month = db.Column(db.Date, nullable=true)
+	month = db.Column(db.Date, nullable=True)
 	income = db.Column(db.Float, nullable=True, default=0)
 	money_for_month = db.Column(db.Float, nullable=True, default=0)
 	money_for_day = db.Column(db.Float, nullable=True, default=0)

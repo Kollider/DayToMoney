@@ -4,19 +4,20 @@ from datetime import datetime, date
 from flask import render_template, request, flash, url_for, redirect
 from flask_login import current_user, login_user, logout_user, login_required
 
-from new_app.forms import SpendingForm, MonthPlanForm, MonthTypeForm, RegistrationForm, LoginForm
-from new_app.helper.daily_plan_table import delta_flow_test
-from new_app.helper.month_plan_table import plan_to_dict, daily_overall_dict
-from new_app.helper.name_months import months_names
-from new_app.helper.spend_validate import validate_spendings
-from new_app.main import website, db, bcrypt
-from new_app.models import Spendings, Month_plans, Types_of_month_spend, Users
+from . import app, db, bcrypt
+from .forms import SpendingForm, MonthPlanForm, MonthTypeForm, RegistrationForm, LoginForm
+from .models import Spendings, Month_plans, Types_of_month_spend, Users
+
+from .helper.daily_plan_table import delta_flow_test
+from .helper.month_plan_table import plan_to_dict, daily_overall_dict
+from .helper.name_months import months_names
+from .helper.spend_validate import validate_spendings
 
 
-@website.route("/")
-@website.route("/home", methods=['GET', 'POST'])
+@app.route("/")
+@app.route("/home", methods=['GET', 'POST'])
 def home():
-	if current_user.status != True:
+	if not current_user.is_authenticated:
 		flash('Please login to use Day to Money', 'success')
 		return redirect(url_for('about'))
 	today_date = date.today()
@@ -46,12 +47,12 @@ def home():
 						   today_date=today_date,mid_sum_delta=mid_sum_delta)
 
 
-@website.route('/about')
+@app.route('/about')
 def about():
 	return render_template('about.html')
 
 
-@website.route("/register", methods=['GET', 'POST'])  # todo add login redirect to the end of html
+@app.route("/register", methods=['GET', 'POST'])  # todo add login redirect to the end of html
 def register():
 	if current_user.is_authenticated:
 		return redirect(url_for('home'))
@@ -67,7 +68,7 @@ def register():
 	return render_template('register.html', title='Register', form=form)
 
 
-@website.route("/login", methods=['GET', 'POST'])
+@app.route("/login", methods=['GET', 'POST'])
 def login():
 	if current_user.is_authenticated:
 		return redirect(url_for('home'))
@@ -75,9 +76,6 @@ def login():
 	if form.validate_on_submit():
 		user = Users.query.filter_by(email=form.email.data).first()
 		if user and bcrypt.check_password_hash(user.password, form.password.data):
-			user.status = True
-			db.session.add(user)
-			db.session.commit()
 			login_user(user, remember=form.remember.data)
 			next_page = request.args.get('next')
 			return redirect(next_page) if next_page else redirect(url_for('home'))
@@ -86,28 +84,24 @@ def login():
 	return render_template('login.html', title='Login', form=form)
 
 
-@website.route("/logout")
+@app.route("/logout")
 @login_required
 def logout():
-	user = current_user
-	user.status = False
-	db.session.add(user)
-	db.session.commit()
 	logout_user()
 	return redirect(url_for('home'))
 
 
-@website.route('/spending/all', methods=['GET', 'POST'])
+@app.route('/spending/all', methods=['GET', 'POST'])
 @login_required
 def spendings():
 	page = request.args.get('page', 1, type=int)
 	day_spending = Spendings.query.filter_by(user_id=current_user.id).order_by(Spendings.id.desc()).paginate(page=page,
 																											 per_page=10)
-	print(day_spending.items)
+
 	return render_template('spendings.html', day_spending=day_spending)
 
 
-@website.route('/spending/day')
+@app.route('/spending/day')
 @login_required
 def spendings_day():
 	a = request.args.get('start_day')  # todo rename variable
@@ -119,7 +113,7 @@ def spendings_day():
 	return render_template('spendings_day.html', day_spending=day_spending)
 
 
-@website.route('/spending/new', methods=['GET', 'POST'])
+@app.route('/spending/new', methods=['GET', 'POST'])
 @login_required
 def new_spending():
 	form = SpendingForm()
@@ -138,19 +132,19 @@ def new_spending():
 	return render_template('create_new_spending.html', title='New Purchase', form=form, legend='New Purchase')
 
 
-@website.route('/spending/<int:spending_id>')
+@app.route('/spending/<int:spending_id>')
 @login_required
 def spending(spending_id):
-	if current_user.status != True:
+	if not current_user.is_authenticated:
 		return redirect(url_for('home'))
 	spending = Spendings.query.get_or_404(spending_id)
 	return render_template('spending.html', title=spending.name_of_item, purchase=spending)
 
 
-@website.route('/spending/<int:spending_id>/delete', methods=['GET', 'POST'])
+@app.route('/spending/<int:spending_id>/delete', methods=['GET', 'POST'])
 @login_required
 def delete_spending(spending_id):
-	if current_user.status != True:
+	if not current_user.is_authenticated:
 		return redirect(url_for('home'))
 	spending = Spendings.query.get_or_404(spending_id)
 	db.session.delete(spending)
@@ -159,10 +153,10 @@ def delete_spending(spending_id):
 	return redirect(url_for('home'))
 
 
-@website.route('/spending/<int:spending_id>/edit', methods=['GET', 'POST'])
+@app.route('/spending/<int:spending_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_spending(spending_id):
-	if current_user.status != True:
+	if not current_user.is_authenticated:
 		return redirect(url_for('home'))
 	spending = Spendings.query.get_or_404(spending_id)
 	form = SpendingForm()
@@ -187,7 +181,7 @@ def edit_spending(spending_id):
 	return render_template('create_new_spending.html', title='Edit Purchase', legend='Edit Purchase', form=form)
 
 
-@website.route('/planning/monthly/months', methods=['GET', 'POST'])
+@app.route('/planning/monthly/months', methods=['GET', 'POST'])
 @login_required
 def show_all_months():
 	page = request.args.get('page', 1, type=int)
@@ -196,7 +190,7 @@ def show_all_months():
 	return render_template('monthplanning.html', month_plans=month_plans, myfunction=months_names)
 
 
-@website.route('/planning/monthly/new', methods=['GET', 'POST'])
+@app.route('/planning/monthly/new', methods=['GET', 'POST'])
 @login_required
 def month_plan_new():
 	form = MonthPlanForm()
@@ -214,8 +208,8 @@ def month_plan_new():
 	return render_template('create_new_month_plan.html', title='New Month Plan', form=form, legend='New Month Plan')
 
 
-@website.route('/planning/monthly/<int:month_plan_id>',
-			   methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
+@app.route('/planning/monthly/<int:month_plan_id>',
+		   methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
 @login_required
 def month_plan_table_test(month_plan_id):
 	month_plan = Month_plans.query.get_or_404(month_plan_id)
@@ -227,10 +221,10 @@ def month_plan_table_test(month_plan_id):
 						   monthOverall=daily_overall_dict(plan_to_dict(month_plan), month_plan.income))
 
 
-@website.route('/planning/monthly/<int:month_plan_id>/delete', methods=['GET', 'POST'])
+@app.route('/planning/monthly/<int:month_plan_id>/delete', methods=['GET', 'POST'])
 @login_required
 def delete_month_plan(month_plan_id):
-	if not current_user.status:
+	if not current_user.is_authenticated:
 		return redirect(url_for('about'))
 	month_plan = Month_plans.query.get_or_404(month_plan_id)
 	db.session.delete(month_plan)
@@ -239,10 +233,10 @@ def delete_month_plan(month_plan_id):
 	return redirect(url_for('show_all_months'))
 
 
-@website.route('/planning/monthly/<int:month_plan_id>/edit', methods=['GET', 'POST'])
+@app.route('/planning/monthly/<int:month_plan_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_month_plan(month_plan_id):
-	if not current_user.status:
+	if not current_user.is_authenticated:
 		return redirect(url_for('about'))
 	month_plan = Month_plans.query.get_or_404(month_plan_id)
 	form = MonthPlanForm()
@@ -258,7 +252,7 @@ def edit_month_plan(month_plan_id):
 	return render_template('create_new_month_plan.html', title='Edit Month Plan', legend='Edit Month Plan', form=form)
 
 
-@website.route('/planning/monthly/types/all', methods=['GET', 'POST'])
+@app.route('/planning/monthly/types/all', methods=['GET', 'POST'])
 @login_required
 def show_all_types():
 	page = request.args.get('page', 1, type=int)
@@ -271,7 +265,7 @@ def show_all_types():
 	return render_template('month_types_all.html', month_types=month_types)
 
 
-@website.route('/planning/monthly/<int:month_plan_id>/types/new', methods=['GET', 'POST'])
+@app.route('/planning/monthly/<int:month_plan_id>/types/new', methods=['GET', 'POST'])
 @login_required
 def month_type_new(month_plan_id):
 	form = MonthTypeForm()
@@ -302,10 +296,10 @@ def month_type_new(month_plan_id):
 	return render_template('create_new_month_type.html', title='New Month Type', form=form, legend='New Month Type')
 
 
-@website.route('/planning/monthly/<int:month_plan_id>/types/<int:month_type_id>')
+@app.route('/planning/monthly/<int:month_plan_id>/types/<int:month_type_id>')
 @login_required
 def month_type_single(month_type_id, month_plan_id):
-	if not current_user.status:
+	if not current_user.is_authenticated:
 		return redirect(url_for('home'))
 	month_type_expense = Types_of_month_spend.query.get_or_404(month_type_id)
 	bla = month_plan_id
@@ -313,10 +307,10 @@ def month_type_single(month_type_id, month_plan_id):
 						   month_type=month_type_expense, month_plan_id=bla)
 
 
-@website.route('/planning/monthly/types/<int:month_type_id>/delete', methods=['GET', 'POST'])
+@app.route('/planning/monthly/types/<int:month_type_id>/delete', methods=['GET', 'POST'])
 @login_required
 def delete_month_type(month_type_id):
-	if not current_user.status:
+	if not current_user.is_authenticated:
 		return redirect(url_for('home'))
 	month_type_expense = Types_of_month_spend.query.get_or_404(month_type_id)
 	db.session.delete(month_type_expense)
@@ -325,10 +319,10 @@ def delete_month_type(month_type_id):
 	return redirect(url_for('home'))
 
 
-@website.route('/planning/monthly/<int:month_plan_id>/types/<int:month_type_id>/delete', methods=['GET', 'POST'])
+@app.route('/planning/monthly/<int:month_plan_id>/types/<int:month_type_id>/delete', methods=['GET', 'POST'])
 @login_required
 def edit_month_type(month_plan_id, month_type_id):
-	if not current_user.status:
+	if not current_user.is_authenticated:
 		return redirect(url_for('about'))
 	month_type_expense = Types_of_month_spend.query.get_or_404(month_type_id)
 	form = MonthTypeForm()
@@ -342,11 +336,11 @@ def edit_month_type(month_plan_id, month_type_id):
 			amount_in_money = form.amount.data
 			amount_in_percent = amount_in_money / type_income * 100
 
-		month_type_expense.name_of_type = form.name_of_type.data,
-		month_type_expense.amount_in_percent = round(amount_in_percent, 2),
-		month_type_expense.amount_in_money = round(amount_in_money, 2),
-		month_type_expense.is_default = form.is_default.data,
-		month_type_expense.is_everyday = form.is_everyday.data,
+		month_type_expense.name_of_type = form.name_of_type.data
+		month_type_expense.amount_in_percent = round(amount_in_percent, 2)
+		month_type_expense.amount_in_money = round(amount_in_money, 2)
+		month_type_expense.is_default = form.is_default.data
+		month_type_expense.is_everyday = form.is_everyday.data
 		month_type_expense.month_plan = month_plan_id
 		if not month_type_expense.is_everyday:  # currently left amount adds to daily delta flow#todo decide if left amount is adding to month or day
 			month_plan.money_for_day -= month_type_expense.amount_in_money
@@ -365,8 +359,8 @@ def edit_month_type(month_plan_id, month_type_id):
 
 # todo add edit month_type
 
-@website.route('/planning/daily/delta_flow',
-			   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
+@app.route('/planning/daily/delta_flow',
+		   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
 @login_required
 def delta_flow():
 	start_checkpoint = datetime.strptime('01.09.2021', '%d.%m.%Y').date()  # todo create form to choose date
@@ -389,8 +383,8 @@ def delta_flow():
 						   prev_checkpoint=b)  # todo check naming #todo format dates to human-friendly
 
 
-@website.route('/planning/daily/delta_flow/test',
-			   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
+@app.route('/planning/daily/delta_flow/test',
+		   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
 @login_required
 def delta_flow_month():
 	month_plan_id = request.args.get('month_plan_id')

@@ -8,7 +8,7 @@ from wtforms import StringField, SubmitField, FloatField, BooleanField, SelectFi
 from wtforms.fields.html5 import DateField, DecimalField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
-from new_app.models import Users, Month_plans
+from .models import Users, Month_plans
 
 
 class RegistrationForm(FlaskForm):

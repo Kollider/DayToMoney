@@ -10,11 +10,11 @@
 # todo implement user_id, output_to_csv
 
 import pandas as pd
-from app.classes import Spending
-from app.converter import converter
-from app.main import db
-from app.separator import separator
 from datetime import datetime
+
+from app import Spendings, db
+from app.helper.converter import converter
+from app.helper.separator import separator
 
 filename = 'files/Finances.csv'
 df = pd.read_csv(filename, encoding='windows-1251', sep=';')
@@ -44,6 +44,10 @@ for index, row in df.iterrows():
             quantity = converted_quantity
             quantity_type = converted_quantity_type
 
+            if ',' in str(spending_amount):
+                bla = (str(spending_amount).replace(",", ".").replace(' ',''))
+                spending_amount=float(bla.strip(' '))
+
             print(day, '|', name_of_item, '|', quantity, '|', quantity_type, '|', spending_amount)
             # print(row)
             # print(type(day),'--',day)
@@ -51,7 +55,7 @@ for index, row in df.iterrows():
             # print(type(quantity_type), '--', quantity_type)
             print('--------')
 
-            test_spend = Spending(day=day, name_of_item=name_of_item, quantity=quantity, quantity_type=quantity_type,
+            test_spend = Spendings(day=day, name_of_item=name_of_item, quantity=quantity, quantity_type=quantity_type,
                                   spending_amount=spending_amount, user_id=1)
             db.session.add(test_spend)
             db.session.commit()

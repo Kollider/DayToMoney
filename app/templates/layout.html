@@ -27,7 +27,7 @@
           <div class="collapse navbar-collapse" id="navbarToggle">
             <div class="navbar-nav mr-auto">
 
-                {% if current_user.status==True %}
+                {% if current_user.is_authenticated %}
                 <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
                     <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
               <a class="nav-item nav-link" href="{{ url_for('spendings') }}">Purchases</a>
@@ -40,8 +40,8 @@
               <div class="navbar-nav">
                         <!--<a class="nav-item nav-link" href="{{ url_for('show_all_types') }}">All types</a>-->
                   <!--<a class="nav-item nav-link" href="{{ url_for('delta_flow') }}">Delta</a>-->
-                  {% if current_user.is_authenticated %} {% if current_user.status==False %}
-                    <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">Add purchase</a>
+                  {% if current_user.is_authenticated %} {% if current_user.status==True %}
+                    <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">Admin Panel</a>
                   {% endif %}
                     <a class="nav-item nav-link" href="{{ url_for('new_spending') }}">Add purchase</a>
                     <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
