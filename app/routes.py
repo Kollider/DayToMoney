@@ -3,9 +3,11 @@ from datetime import datetime, date
 
 from flask import render_template, request, flash, url_for, redirect
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_mail import Message
 
-from . import app, db, bcrypt
-from .forms import SpendingForm, MonthPlanForm, MonthTypeForm, RegistrationForm, LoginForm
+from . import app, db, bcrypt, mail
+from .forms import (SpendingForm, MonthPlanForm, MonthTypeForm, RegistrationForm, LoginForm, UpdateAccountForm,
+					RequestResetForm, ResetPasswordForm)
 from .models import Spendings, Month_plans, Types_of_month_spend, Users
 
 from .helper.daily_plan_table import delta_flow_test
@@ -41,10 +43,10 @@ def home():
 	a = delta_flow_test(start_checkpoint, next_checkpoint, bla, month_plan_delta.money_for_day)
 	dynamic_mid = a[f'{today_date.strftime("%d.%m")}']['dynamic_mid']
 	day_sum = a[f'{today_date.strftime("%d.%m")}']['day_result']
-	mid_sum_delta = round(dynamic_mid+day_sum,2)
+	mid_sum_delta = round(dynamic_mid + day_sum, 2)
 
 	return render_template('home.html', day_spending=day_spending, dynamic_mid=dynamic_mid, day_sum=day_sum,
-						   today_date=today_date,mid_sum_delta=mid_sum_delta)
+						   today_date=today_date, mid_sum_delta=mid_sum_delta)
 
 
 @app.route('/about')
@@ -64,7 +66,7 @@ def register():
 		db.session.add(user)
 		db.session.commit()
 		flash('Your account has been created! You are now able to log in', 'success')
-		return redirect(url_for('about'))
+		return redirect(url_for('login'))
 	return render_template('register.html', title='Register', form=form)
 
 
@@ -89,6 +91,67 @@ def login():
 def logout():
 	logout_user()
 	return redirect(url_for('home'))
+
+
+@app.route("/account", methods=['GET', 'POST'])
+@login_required
+def account():
+	if not current_user.is_authenticated:
+		return redirect(url_for('home'))
+	form = UpdateAccountForm()
+	if form.validate_on_submit():
+		current_user.email = form.email.data
+		current_user.username = form.username.data
+		db.session.commit()
+		flash('Account info has been updated!', 'success')
+		return redirect(url_for('account'))
+	elif request.method == 'GET':
+		form.email.data = current_user.email
+		form.username.data = current_user.username
+	return render_template('account.html', title='Account', form=form)
+
+
+def send_reset_email(user):
+	token = user.get_reset_token()
+	msg = Message('Password Reset Request',
+				  sender='noreply@demo.com',
+				  recipients=[user.email])
+	msg.body = f""" To reset your password, visit the following link:
+{url_for('reset_token', token=token, _external=True)}
+"""
+	mail.send(msg)
+
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_request():
+	form = RequestResetForm()
+	if current_user.is_authenticated:
+		form.email.data = current_user.email
+	if form.validate_on_submit():
+		user = Users.query.filter_by(email=form.email.data).first()
+		send_reset_email(user)
+		flash('Please, check your mailbox and spam folder. Email with instructions has been sent.', 'info')
+		return redirect(url_for('login'))
+	return render_template('reset_request.html', title='Reset Password', form=form)
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_token(token):
+	if current_user.is_authenticated:
+		return redirect(url_for('home'))
+	user = Users.verify_reset_token(token)
+	if user is None:
+		flash('Invalid or expired token', 'warning')
+		return redirect(url_for('reset_request'))
+	form = ResetPasswordForm()
+	if form.validate_on_submit():
+		hashed_password = bcrypt.generate_password_hash(
+			form.password.data).decode('utf-8')
+		user.password=hashed_password
+		db.session.commit()
+		flash('Your password has been changed!', 'success')
+		return redirect(url_for('login'))
+	return render_template('reset_token.html', title='Reset Password', form=form)
 
 
 @app.route('/spending/all', methods=['GET', 'POST'])

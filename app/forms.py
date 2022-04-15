@@ -17,7 +17,7 @@ class RegistrationForm(FlaskForm):
 	email = StringField('Email', validators=[DataRequired(), Email()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-	submit = SubmitField('Sign Up')
+	submit = SubmitField('Submit')
 
 	def validate_email(self, email):
 		user = Users.query.filter_by(email=email.data).first()
@@ -31,12 +31,48 @@ class RegistrationForm(FlaskForm):
 			raise ValidationError(
 				'That username is taken. Please choose a different one.')
 
-
 class LoginForm(FlaskForm):
 	email = StringField('Email', validators=[DataRequired(), Email()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	remember = BooleanField('Remember Me')
 	submit = SubmitField('Login')
+
+class UpdateAccountForm(FlaskForm):
+	username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+	email = StringField('Email', validators=[DataRequired(), Email()])
+
+	submit = SubmitField('Submit')
+
+	def validate_email(self, email):
+		if email.data != current_user.email:
+			user = Users.query.filter_by(email=email.data).first()
+			if user:
+				raise ValidationError(
+					'That email is taken. Please choose a different one.')
+
+	def validate_username(self, username):
+		if username.data != current_user.username:
+			user = Users.query.filter_by(username=username.data).first()
+			if user:
+				raise ValidationError(
+					'That username is taken. Please choose a different one.')
+
+class RequestResetForm(FlaskForm):
+	email = StringField('Email', validators=[DataRequired(), Email()])
+	submit = SubmitField('Request Password Reset')
+
+	def validate_email(self, email):
+		user = Users.query.filter_by(email=email.data).first()
+		if user is None:
+			raise ValidationError(
+				'This email is not in the database. Please verify if it is correct')
+
+class ResetPasswordForm(FlaskForm):
+	password = PasswordField('Password', validators=[DataRequired()])
+	confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+	submit = SubmitField('ResetPassword')
+
+
 
 
 class SpendingForm(FlaskForm):
@@ -47,10 +83,11 @@ class SpendingForm(FlaskForm):
 	quantity = FloatField('Quantity', validators=[DataRequired()])
 	quantity_type = SelectField('Quantity type', choices=['л', 'мл', 'кг', 'г', 'шт'])
 	spending_amount = DecimalField('Spending amount', validators=[DataRequired()])
-	submit = SubmitField('Send')
+	submit = SubmitField('Add')
 
 
-class MonthPlanForm(FlaskForm): #todo rethink the validation because it prevents from editing the month plan| dynamic validation
+class MonthPlanForm(
+	FlaskForm):  # todo rethink the validation because it prevents from editing the month plan| dynamic validation
 	month = DateField('Month', validators=[DataRequired()], default=today)
 	income = FloatField('Income', validators=[DataRequired()])  # todo check if DecimalField on phone is more accurate
 	submit = SubmitField('Add')
