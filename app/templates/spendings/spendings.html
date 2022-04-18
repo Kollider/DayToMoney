@@ -1,15 +1,16 @@
 {% extends "layout.html" %} {% block content %}
-    {% if not day_spending %}
+{% if not day_spending.items %}
     <article class="media content-section">
-        No purchases for this day
+        No purchases yet
     </article>
 {% endif %}
-    {% for  day in day_spending%}
+
+    {% for  day in day_spending.items%}
         <article class="media content-section">
         <div class="media-body">
             <div class="article-metadata">
                 <div>
-                    <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('edit_spending', spending_id=day.id) }}">
+                    <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('spendings.edit_spending', spending_id=day.id) }}">
                             Edit
                     </a>
 
@@ -20,7 +21,7 @@
 
             </div>
             <h2>
-                <a class="article-title" href="{{ url_for('spending', spending_id=day.id) }}">
+                <a class="article-title" href="{{ url_for('spendings.spending', spending_id=day.id) }}">
                     {{ day.name_of_item }}
                 </a>
             </h2>
@@ -44,7 +45,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('delete_spending', spending_id=day.id) }}" method="POST">
+                <form action="{{ url_for('spendings.delete_spending', spending_id=day.id) }}" method="POST">
                     <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
             </div>
@@ -54,4 +55,6 @@
     {% endfor %}
 
 
-{% endblock content %}
+{% for page_num in day_spending.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %} {% if page_num %} {% if day_spending.page == page_num %}
+<a class="btn btn-info mb-4" href="{{ url_for('spendings._spendings', page=page_num) }}">{{ page_num }}</a> {% else %}
+<a class="btn btn-outline-info mb-4" href="{{ url_for('spendings._spendings', page=page_num) }}">{{ page_num }}</a> {% endif %} {% else %} ... {% endif %} {% endfor %} {% endblock content %}

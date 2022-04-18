@@ -1,5 +1,5 @@
 {% extends "layout.html" %} {% block content %}
-    <a class="btn btn-outline-primary btn-block" href="{{ url_for('show_all_months') }}">Back to all plans</a>
+    <a class="btn btn-outline-primary btn-block" href="{{ url_for('month_plans.show_all_months') }}">Back to all plans</a>
 <!-- <article class="media content-section">
     <div class="media-body">
         <div class="article-metadata">
@@ -32,7 +32,7 @@
                 <tr>
 
                     <td>
-                        <a class="article-title" href="{{ url_for('month_type_single', month_type_id=planDictionary[type]['id'],month_plan_id= month_plan.id) }}">
+                        <a class="article-title" href="{{ url_for('month_types.month_type_single', month_type_id=planDictionary[type]['id'],month_plan_id= month_plan.id) }}">
                             {{ planDictionary[type]['name'] }}
                         </a>
                     </td>
@@ -104,7 +104,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('month_type_new', month_plan_id=month_plan.id) }}" method="POST">
+                <form action="{{ url_for('month_types.month_type_new', month_plan_id=month_plan.id) }}" method="POST">
                     <input class="btn btn-danger" type="submit" value="Create">
                 </form>
             </div>
@@ -122,7 +122,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('delete_month_plan', month_plan_id=month_plan.id) }}" method="POST">
+                <form action="{{ url_for('month_plans.delete_month_plan', month_plan_id=month_plan.id) }}" method="POST">
                     <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
             </div>

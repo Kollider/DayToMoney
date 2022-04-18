@@ -17,7 +17,7 @@
         </p>
     </div>
     <div>
-        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('new_spending') }}">
+        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('spendings.new_spending') }}">
             <small class="text-muted">
                 Add purchase
             </small>
@@ -34,7 +34,7 @@
         <div class="media-body">
             <div class="article-metadata">
                 <div>
-                    <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('edit_spending', spending_id=day.id) }}">
+                    <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('spendings.edit_spending', spending_id=day.id) }}">
                             Edit
                     </a>
 
@@ -45,7 +45,7 @@
 
             </div>
             <h2>
-                <a class="article-title" href="{{ url_for('spending', spending_id=day.id) }}">
+                <a class="article-title" href="{{ url_for('spendings.spending', spending_id=day.id) }}">
                     {{ day.name_of_item }}
                 </a>
             </h2>
@@ -69,7 +69,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('delete_spending', spending_id=day.id) }}" method="POST">
+                <form action="{{ url_for('spendings.delete_spending', spending_id=day.id) }}" method="POST">
                     <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
             </div>

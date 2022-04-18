@@ -1,6 +1,6 @@
 {% extends "layout.html" %} {% block content %}
     {% if 'Edit' in legend %}
-    <a class="btn btn-outline-primary btn-block" href="{{ url_for('month_plan_table_test', month_plan_id=month_plan_id) }}">Back to all types</a>
+    <a class="btn btn-outline-primary btn-block" href="{{ url_for('month_plans.month_plan_table_test', month_plan_id=month_plan_id) }}">Back to all types</a>
     {% endif %}
 <div class="content-section">
     <form method="POST" action="" enctype="multipart/form-data">
