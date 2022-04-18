@@ -1,0 +1,15 @@
+{% extends "layout.html" %} {% block content %}
+    {% for  test in month_types.items%}
+        <h1>{{ test.name_of_type }}</h1>
+        <p>{{ test.amount_in_percent }}</p>
+        <p>{{ test.amount_in_money }}</p>
+        <p>{{ test.default }}</p>
+        <p>{{ test.is_everyday }}</p>
+        <p>{{ test.month_plan }}</p>
+
+    {% endfor %}
+
+
+{% for page_num in month_types.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %} {% if page_num %} {% if month_types.page == page_num %}
+<a class="btn btn-info mb-4" href="{{ url_for('month_types.show_all_types', page=page_num) }}">{{ page_num }}</a> {% else %}
+<a class="btn btn-outline-info mb-4" href="{{ url_for('month_types.show_all_types', page=page_num) }}">{{ page_num }}</a> {% endif %} {% else %} ... {% endif %} {% endfor %} {% endblock content %}

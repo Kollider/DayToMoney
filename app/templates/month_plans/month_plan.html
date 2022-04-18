@@ -1,0 +1,133 @@
+{% extends "layout.html" %} {% block content %}
+    <a class="btn btn-outline-primary btn-block" href="{{ url_for('month_plans.show_all_months') }}">Back to all plans</a>
+<!-- <article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+           <small class="text-muted">{{ month_plan.month.strftime('%Y-%m-%d') }}</small>
+        </div>
+        <h2 class="article-title">{{ month_plan.income }}</h2>
+        <p class="article-content">{{ month_plan.money_for_day }}</p>
+    </div>
+    {% for type in month_plan.list_of_planned_spending %}
+            <a>{{ type.name_of_type }}</a>
+        {% endfor %}
+
+</article>-->
+<article class="media content-section">
+<div class="media-body">
+    <p class="article-content" style="font-size: 1.4rem;float: right;">Income: {{ month_plan.income }}</p>
+    <p class="article-content" style="font-size: 1.4rem;float: left;">Days: {{ days }}</p>
+
+    <table class="table">
+            <thead>
+                <tr class="table-info">
+                    <th scope="col">Name</th>
+                    <th scope="col">Percent</th>
+                    <th scope="col">Daily</th>
+                    <th scope="col">Amount</th>
+
+                </tr>
+            </thead>
+            <tbody>{% for type in planDictionary %}
+                <tr>
+
+                    <td>
+                        <a class="article-title" href="{{ url_for('month_types.month_type_single', month_type_id=planDictionary[type]['id'],month_plan_id= month_plan.id) }}">
+                            {{ planDictionary[type]['name'] }}
+                        </a>
+                    </td>
+                    <td>{{ planDictionary[type]['amount_in_percent'] }} %</td>
+                    <td>{% if planDictionary[type]['daily'] %}{{ planDictionary[type]['daily'] }} ₴{% else %}{% endif %}</td>
+                    <td>{{ planDictionary[type]['amount_in_money'] }} ₴</td>
+
+                </tr>{% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Overall Day</td>
+                <td>{{ monthOverall['overall_day_percent'] }} %</td>
+                <td>{{ monthOverall['overall_day_daily'] }} ₴</td>
+                <td>{{ monthOverall['overall_day_amount'] }} ₴</td>
+            </tr>
+            <tr>
+                <td>Overall Month</td>
+                <td>{{ monthOverall['overall_month_percent'] }} %</td>
+                <td> </td>
+                <td>{{ monthOverall['overall_month_amount'] }} ₴</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Remains</td>
+                <td>{{ monthOverall['left_percent'] }} %</td>
+                <td></td>
+                <td>{% if monthOverall['left_amount']!=0 %}{{ monthOverall['left_amount'] }}{% else %}{{ month_plan.income }}{% endif %}</td>
+            </tr>
+
+
+            </tbody>
+        </table>
+
+    <button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#newtypeModal">New Type</button>
+    <div>
+
+
+    <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">
+                        Delete Month
+                    </button>
+
+        </div>
+
+
+<p></p>
+
+
+</div>
+</article>
+<!--Modal-->
+<div class="modal fade" id="newtypeModal" tabindex="-1" role="dialog" aria-labelledby="newtypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newtypeModalLabel">Create new type?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('month_types.month_type_new', month_plan_id=month_plan.id) }}" method="POST">
+                    <input class="btn btn-danger" type="submit" value="Create">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Month?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('month_plans.delete_month_plan', month_plan_id=month_plan.id) }}" method="POST">
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

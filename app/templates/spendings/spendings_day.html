@@ -1,36 +1,11 @@
 {% extends "layout.html" %} {% block content %}
-<article class="media content-section">
-    <div class="media-body">
-        <div class="article-metadata">
-            <small class="text-muted">
-                Today: {{ today_date.strftime('%d.%m.%Y') }}
-            </small>
-            <div>
-                <p class="align-content-start">
-                    {{ mid_sum_delta }} ₴ - Saved today
-                </p>
-            </div>
-        </div>
-        <p class="article-content">
-            {{ dynamic_mid }} ₴ - Money planned for today
-            {{ day_sum }} ₴     - Today's result
-        </p>
-    </div>
-    <div>
-        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('spendings.new_spending') }}">
-            <small class="text-muted">
-                Add purchase
-            </small>
-        </a>
-    </div>
-</article>
-{% if not day_spending %}
+    {% if not day_spending %}
     <article class="media content-section">
-        No purchases yet
+        No purchases for this day
     </article>
 {% endif %}
-{% for day in  day_spending%}
-    <article class="media content-section">
+    {% for  day in day_spending%}
+        <article class="media content-section">
         <div class="media-body">
             <div class="article-metadata">
                 <div>
@@ -76,5 +51,7 @@
         </div>
     </div>
 </div>
-{% endfor %}
-{% endblock content%}
+    {% endfor %}
+
+
+{% endblock content %}

@@ -1,0 +1,54 @@
+{% extends "layout.html" %} {% block content %}
+<div class="content-section">
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">{{ legend }}</legend>
+            <div class="form-group">
+                {{ form.day.label(class="form-control-label") }} {% if form.day.errors %} {{ form.day(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.day.errors %}
+                    <span>{{ error }}</span> {% endfor %}
+                </div>
+                {% else %} {{ form.day(class="form-control form-control-lg") }} {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.name_of_item.label(class="form-control-label") }} {% if form.name_of_item.errors %} {{ form.name_of_item(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name_of_item.errors %}
+                    <span>{{ error }}</span> {% endfor %}
+                </div>
+                {% else %} {{ form.name_of_item(class="form-control form-control-lg") }} {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.quantity.label(class="form-control-label") }} {% if form.quantity.errors %} {{ form.quantity(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.quantity.errors %}
+                    <span>{{ error }}</span> {% endfor %}
+                </div>
+                {% else %} {{ form.quantity(class="form-control form-control-lg") }} {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.quantity_type.label(class="form-control-label") }} {% if form.quantity_type.errors %} {{ form.quantity_type(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.quantity_type.errors %}
+                    <span>{{ error }}</span> {% endfor %}
+                </div>
+                {% else %} {{ form.quantity_type(class="form-control form-control-lg") }} {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.spending_amount.label(class="form-control-label") }} {% if form.spending_amount.errors %} {{ form.spending_amount(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.spending_amount.errors %}
+                    <span>{{ error }}</span> {% endfor %}
+                </div>
+                {% else %} {{ form.spending_amount(class="form-control form-control-lg") }} {% endif %}
+            </div>
+
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}

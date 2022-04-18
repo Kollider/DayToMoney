@@ -1,0 +1,45 @@
+{% extends "layout.html" %} {% block content %}
+<button type="button" class="btn btn-secondary btn-sm m-1" data-toggle="modal" data-target="#newplanModal">New Plan</button>
+    {% for  test in month_plans.items%}
+       <!-- <h2><a class="article-title" href="{{ url_for('month_plans.month_plan_table_test', month_plan_id=test.id) }}">{{ test.month.year }} {{ myfunction(test.month.month) }}</a></h2>
+        <p>{{ test.income }}</p>
+        <p>{{ test.money_for_month }}</p>
+        <p>{{ test.money_for_day }}</p>
+        {% for type in test.list_of_planned_spending %}
+            <p>{{ type.name_of_type }}</p>
+        {% endfor %}-->
+           <article class="media content-section"> <div class="media-body">
+            <h2><a class="article-title" href="{{ url_for('month_plans.month_plan_table_test', month_plan_id=test.id) }}">{{ test.month.year }} {{ myfunction(test.month.month) }}</a></h2>
+
+            </div>
+               <p class="article-content">{{ test.income }} ₴
+                   <form action="{{ url_for('delta_flows.delta_flow_month', month_plan_id=test.id) }}" method="POST">
+                    <input class="btn btn-secondary btn-sm m-1" type="submit" value="Delta">
+                </form>
+               </p>
+           </article>
+    {% endfor %}
+
+<!--Modal-->
+<div class="modal fade" id="newplanModal" tabindex="-1" role="dialog" aria-labelledby="newplanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newplanModalLabel">Create new plan?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('month_plans.month_plan_new') }}" >
+                    <input class="btn btn-danger" type="submit" value="Create">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for page_num in month_plans.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %} {% if page_num %} {% if month_plans.page == page_num %}
+<a class="btn btn-info mb-4" href="{{ url_for('month_plans.show_all_months', page=page_num) }}">{{ page_num }}</a> {% else %}
+<a class="btn btn-outline-info mb-4" href="{{ url_for('month_plans.show_all_months', page=page_num) }}">{{ page_num }}</a> {% endif %} {% else %} ... {% endif %} {% endfor %} {% endblock content %}
