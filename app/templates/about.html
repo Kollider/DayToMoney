@@ -1,0 +1,99 @@
+{% extends "layout.html" %} {% block content %}
+
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h2 class="media-heading">
+                User
+            </h2>
+        </div>
+        <p class="article-content">
+            Юзер - єдиний спосіб використовувати сайт, тому що усі витрати та плани на місяць підв'язуються до унікального id.
+            Тому варто зареєструватися на сайті для подальшого використання. Наразі перевірки email немає, тож можна вводити щось накшталт test@test.com. Головне - запам'ятати. Але перевірка може з'явитися у майбутньому тож раджу використовувати справжній.
+            Пароль при реєстрації зашифровується і відомий тільки користувачу.
+        </p>
+    </div>
+</article>
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h2 class="media-heading">
+                Home
+            </h2>
+        </div>
+        <p class="article-content">
+            Home - головна сторінка сайту, на якій ви можете побачити інформацію по витратам, які ви зробили сьогодні та яким чином вони впливають на ваш бюджет.
+            Для того, аби побачити результат <b>необхідно</b> додати план витрат на місяць.
+        </p>
+    </div>
+</article>
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h2 class="media-heading">
+                All plans
+            </h2>
+        </div>
+        <p class="article-content">
+            All plans - сторінка на якій ви можете додати план витрат на місяць за допомогою кнопки <button type="button" class="btn btn-secondary btn-sm m-1">New Plan</button>
+            У цій версії сайту виберіть будь-яку дату всередині місяця для того, аби вибрати безпосередньо місяць та введіть ваш дохід або кількість грошей, яку ви хочете розпланувати
+            Натисніть на найменування місяця для подробиць. Приклад: <h2><a class="article-title" href="#">2022 April</a></h2>
+            Натисніть на <button type="button" class="btn btn-secondary btn-sm m-1">Delta</button> для перегляду історії витрат за місяць
+        </p>
+    </div>
+</article>
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h2 class="media-heading">
+                Month Plan
+            </h2>
+        </div>
+        <p class="article-content">
+            Тут відображаються ваші заплановані витрати на місяць та щоденне використання у абслютному значенні та у відсотках до доходу. Гроші виділені на щоденні витрати враховуються при плануванні на сторінці Delta.
+            Натисніть на ім'я типу витрат для редагування.
+
+            Додайте типи запланованих витрат за допомогою кнопки <button type="button" class="btn btn-secondary btn-sm m-1">New Type</button>
+            Вкажіть ім'я типу витрати, наприклад: комуналка, інвестування, кіно, їжа.
+            Вкажіть тип запланованої витрати у відсотках від прибутку чи в абсолютному значенні.
+            Вкажіть чи ця витрата запланована на щоденне використання, наприклад: іжа, кіно, транспорт.
+            За замовчуванням, залишок незапланованих грошей враховується до щоденного використання у Delta
+        </p>
+    </div>
+</article>
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h2 class="media-heading">
+                Delta
+            </h2>
+        </div>
+        <p class="article-content">
+            Натисніть на дату для перегляду витрат за день.
+            Result - сума витрат за день.
+            Balance - кількість грошей виділена на щоденні витрати(Money) поділена на кількість днів, що залишилися до кінця місяця.
+            Savings - кількість грошей, яка була збережена.
+
+        </p>
+    </div>
+</article>
+<article class="media content-section">
+    <div class="media-body">
+        <div class="article-metadata">
+            <h2 class="media-heading">
+                Purchase
+            </h2>
+        </div>
+        <p class="article-content">
+            Додати витрату можна з декількох сторінок сайту за допомогою кнопки Add purchase.
+            Вкажіть дату витрати, за замовчуванням встановлюється поточна дата.
+            Вкажіть найменування витрати, наприклад сік.
+            Вкажіть кількість продукту.
+            Виберіть тип кількості.
+            Вкажіть кількість витрачених коштів.
+        </p>
+    </div>
+</article>
+
+
+{% endblock content %}
