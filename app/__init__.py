@@ -28,6 +28,10 @@ def create_app(config_class=Config):
 	app.config.from_object(Config)
 
 	db.init_app(app)
+	try:
+		db.create_all()
+	except Exception as e:
+		print(e)
 	migrate.init_app(app)
 	bcrypt.init_app(app)
 	login_manager.init_app(app)
