@@ -1,3 +1,1 @@
-web: flask db upgrade;
-flask translate compile;
-gunicorn daytomoney:app
+web: gunicorn app:app
