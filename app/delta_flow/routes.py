@@ -10,7 +10,7 @@ delta_flows = Blueprint('delta_flows', __name__)
 
 
 @delta_flows.route('/planning/daily/delta_flow',
-				   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
+				   methods=['GET', 'POST'])
 @login_required
 def delta_flow():
 	start_checkpoint = datetime.strptime('01.09.2021', '%d.%m.%Y').date()  # todo create form to choose date
@@ -34,7 +34,7 @@ def delta_flow():
 
 
 @delta_flows.route('/planning/daily/delta_flow/test',
-				   methods=['GET', 'POST'])  # todo add description with article above/under actual delta
+				   methods=['GET', 'POST'])
 @login_required
 def delta_flow_month():
 	month_plan_id = request.args.get('month_plan_id')

@@ -9,7 +9,7 @@ from app.users.utils import send_reset_email
 users = Blueprint('users',__name__)
 
 
-@users.route("/register", methods=['GET', 'POST'])  # todo add login redirect to the end of html
+@users.route("/register", methods=['GET', 'POST'])
 def register():
 	if current_user.is_authenticated:
 		return redirect(url_for('main.home'))
@@ -82,8 +82,8 @@ def reset_request():
 
 @users.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_token(token):
-	if current_user.is_authenticated:
-		return redirect(url_for('main.home'))
+	# if current_user.is_authenticated:
+	# 	return redirect(url_for('main.home'))
 	user = Users.verify_reset_token(token)
 	if user is None:
 		flash('Invalid or expired token', 'warning')

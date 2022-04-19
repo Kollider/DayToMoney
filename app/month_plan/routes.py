@@ -40,7 +40,7 @@ def month_plan_new():
 
 
 @month_plans.route('/planning/monthly/<int:month_plan_id>',
-		   methods=['GET', 'POST'])  # todo make adaptive to mobile screen|maybe media could help
+		   methods=['GET', 'POST'])
 @login_required
 def month_plan_table_test(month_plan_id):
 	month_plan = Month_plans.query.get_or_404(month_plan_id)

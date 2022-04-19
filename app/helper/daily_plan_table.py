@@ -31,7 +31,7 @@ def delta_flow_test(start, end, daily_query, month_day_income):
 		static_delta_day = static_mid + day_result - static_delta_overall
 		static_delta_overall = static_mid + day_result
 
-		planDict[f'{date.date().strftime("%d.%m")}'] = { #todo add link to spendings for every day to view spendings
+		planDict[f'{date.date().strftime("%d.%m")}'] = {
 			'day_start': round(day_start, 2),
 			'day_result': round(day_result, 2),
 			'dynamic_delta': round(dynamic_delta, 2),
