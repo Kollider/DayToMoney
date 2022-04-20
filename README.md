@@ -25,7 +25,7 @@ In order for DayToMoney work properly the following environment variables needed
 ## Preparing the database
 
 'flask db init'  
-'flask db migrate'
+'flask db migrate'  
 'flask db upgrade'
 
 ## Running the application
