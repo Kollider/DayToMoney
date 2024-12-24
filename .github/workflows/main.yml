@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - '**'  # Matches all branches
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
   hello_world_job:
     runs-on: ubuntu-latest
+    environment: test  # Specifies the environment
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
