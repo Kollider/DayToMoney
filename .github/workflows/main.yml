@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**'  # Matches all branches
+  workflow_dispatch:
 
 jobs:
   hello_world_job:
